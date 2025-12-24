@@ -1,0 +1,16 @@
+{
+  "dependencies": [
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": [ "widgets", "gui", "opengl" ]
+    },
+    {
+      "name": "qttools",
+      "default-features": false,
+      "features": [ "designer" ]
+    },
+    "gtest",
+    "spdlog"
+  ]
+}
