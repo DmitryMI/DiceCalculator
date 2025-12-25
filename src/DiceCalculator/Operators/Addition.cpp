@@ -20,7 +20,7 @@ namespace DiceCalculator::Operators
 
 	Distribution Addition::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		Distribution totalDistribution; // Start with a distribution of 0 with probability 1
+		Distribution totalDistribution = { {0, 1} };
 		for (auto& op : operands)
 		{
 			op->Accept(visitor);

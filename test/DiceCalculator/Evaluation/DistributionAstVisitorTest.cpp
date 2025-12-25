@@ -92,4 +92,18 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[8], 3.0 / 27);
 		EXPECT_DOUBLE_EQ(dist[9], 1.0 / 27);
 	}
+
+	TEST_F(DistributionVisitorTest, SummOfTwoConstantsProducesSingleValueDistribution)
+	{
+		auto node1 = CreateConstant(3);
+		auto node2 = CreateConstant(4);
+		auto additionNode = CreateAdditionNode({ node1, node2 });
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		additionNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 1);
+		EXPECT_DOUBLE_EQ(dist[7], 1.0);
+	}
 }

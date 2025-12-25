@@ -67,12 +67,6 @@ namespace DiceCalculator::Evaluation
 
 	void DistributionAstVisitor::Visit(const Expressions::OperatorNode& node)
 	{
-		std::vector<Distribution> args;
-		for (auto& op : node.GetOperands())
-		{
-			op->Accept(*this);
-			args.push_back(m_Distribution);
-		}
-		// TODO: Implement operator distribution calculation based on node.GetSymbol()
+		m_Distribution = node.GetOperator()->Evaluate(*this, node.GetOperands());
 	}
 }
