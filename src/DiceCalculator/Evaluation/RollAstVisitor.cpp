@@ -24,14 +24,6 @@ namespace DiceCalculator::Evaluation
 
 	void RollAstVisitor::Visit(const Expressions::OperatorNode& node)
 	{
-		/*
-		std::vector<Distribution> args;
-		for (auto& op : node.GetOperands())
-		{
-			op->Accept(*this);
-			args.push_back(m_Distribution);
-		}
-		*/
-		// TODO: Implement operator distribution calculation based on node.GetSymbol()
+		m_Result = node.GetOperator()->Roll(*this, node.GetOperands());
 	}
 }

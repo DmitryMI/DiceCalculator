@@ -2,6 +2,11 @@
 
 namespace DiceCalculator::Operators
 {
+	bool Addition::Validate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		return true;
+	}
+
 	int Addition::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		int total = 0;

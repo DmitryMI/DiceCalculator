@@ -5,6 +5,7 @@
 #include <memory>
 #include "DiceCalculator/Expressions/DiceAst.h"
 #include "DiceCalculator/Evaluation/DiceAstVisitor.h"
+#include "DiceCalculator/Operators/DiceOperator.h"
 
 namespace DiceCalculator::Expressions
 {
@@ -12,20 +13,19 @@ namespace DiceCalculator::Expressions
     {
     public:
         
-        OperatorNode(std::string sym,
+        OperatorNode(std::shared_ptr<DiceCalculator::Operators::DiceOperator> op,
             std::vector<std::shared_ptr<DiceAst>> ops)
-            : m_Symbol(std::move(sym)), m_Operands(std::move(ops))
+            : m_Operator(std::move(op)), m_Operands(std::move(ops))
         {
         }
 
         void Accept(Evaluation::DiceAstVisitor& v) const override;
 
-        const std::string& GetSymbol() const;
-
         const std::vector<std::shared_ptr<DiceAst>>& GetOperands() const;
+		const std::shared_ptr<DiceCalculator::Operators::DiceOperator>& GetOperator() const { return m_Operator; }
 
     private:
-        std::string m_Symbol;
+        std::shared_ptr<DiceCalculator::Operators::DiceOperator> m_Operator;
         std::vector<std::shared_ptr<DiceAst>> m_Operands;
 
     };
