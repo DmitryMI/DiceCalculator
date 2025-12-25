@@ -155,5 +155,51 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist1[11], dist2[11]);
 		EXPECT_DOUBLE_EQ(dist1[12], dist2[12]);
 	}
+
+	TEST_F(DistributionVisitorTest, AdvantageOfConstantIsSameConstant)
+	{
+		auto node = CreateConstant(33);
+		auto advantageNode = CreateAdvantageNode(node);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		advantageNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 1);
+		EXPECT_DOUBLE_EQ(dist[33], 1);
+	}
+
+	TEST_F(DistributionVisitorTest, AdvantageOfSingleDice)
+	{
+		auto dice = CreateDice(1, 3);
+		auto advantageNode = CreateAdvantageNode(dice);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		advantageNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 3);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 9);
+		EXPECT_DOUBLE_EQ(dist[2], 3.0 / 9);
+		EXPECT_DOUBLE_EQ(dist[3], 5.0 / 9);
+	}
+
+	TEST_F(DistributionVisitorTest, AdvantageOfDoubleDice)
+	{
+		auto dice = CreateDice(2, 2);
+		auto advantageNode = CreateAdvantageNode(dice);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		advantageNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 3);
+		EXPECT_DOUBLE_EQ(dist[2], 1.0 / 16);
+		EXPECT_DOUBLE_EQ(dist[3], 8.0 / 16);
+		EXPECT_DOUBLE_EQ(dist[4], 7.0 / 16);
+	}
 	
 }

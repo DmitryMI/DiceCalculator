@@ -2,7 +2,7 @@
 
 namespace DiceCalculator::Operators
 {
-	bool Addition::Validate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	bool Addition::Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		return true;
 	}
