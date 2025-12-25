@@ -93,9 +93,24 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[9], 1.0 / 27);
 	}
 
-	TEST_F(DistributionVisitorTest, SummOfTwoConstantsProducesSingleValueDistribution)
+	TEST_F(DistributionVisitorTest, SumOfThreeConstantsProducesSingleValueDistribution)
 	{
 		auto node1 = CreateConstant(3);
+		auto node2 = CreateConstant(4);
+		auto node3 = CreateConstant(5);
+		auto additionNode = CreateAdditionNode({ node1, node2, node3 });
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		additionNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 1);
+		EXPECT_DOUBLE_EQ(dist[node1->GetValue() + node2->GetValue() + node3->GetValue()], 1.0);
+	}
+
+	TEST_F(DistributionVisitorTest, SumOfSingleDiceAndSingleConstantProducesUniformDistribution)
+	{
+		auto node1 = CreateDice(1, 6);
 		auto node2 = CreateConstant(4);
 		auto additionNode = CreateAdditionNode({ node1, node2 });
 		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
@@ -103,7 +118,42 @@ namespace DiceCalculator::Evaluation
 		additionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 
-		EXPECT_EQ(dist.Size(), 1);
-		EXPECT_DOUBLE_EQ(dist[7], 1.0);
+		EXPECT_EQ(dist.Size(), 6u);
+		EXPECT_DOUBLE_EQ(dist[1 + node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[2 + node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[3 + node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[4 + node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[5 + node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[6 + node2->GetValue()], 1.0 / 6);
 	}
+
+	TEST_F(DistributionVisitorTest, SumOfTwoDicesIsEqualToDoubleDice)
+	{
+		auto dice1 = CreateDice(1, 6);
+		auto dice2 = CreateDice(1, 6);
+		auto additionNode = CreateAdditionNode({ dice1, dice2 });
+
+		auto twoDices = CreateDice(2, 6);
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		additionNode->Accept(visitor);
+		const auto& dist1 = visitor.GetDistribution();
+
+		twoDices->Accept(visitor);
+		const auto& dist2 = visitor.GetDistribution();
+
+		EXPECT_EQ(dist1.Size(), dist2.Size());
+		EXPECT_DOUBLE_EQ(dist1[2], dist2[2]);
+		EXPECT_DOUBLE_EQ(dist1[3], dist2[3]);
+		EXPECT_DOUBLE_EQ(dist1[4], dist2[4]);
+		EXPECT_DOUBLE_EQ(dist1[5], dist2[5]);
+		EXPECT_DOUBLE_EQ(dist1[6], dist2[6]);
+		EXPECT_DOUBLE_EQ(dist1[7], dist2[7]);
+		EXPECT_DOUBLE_EQ(dist1[8], dist2[8]);
+		EXPECT_DOUBLE_EQ(dist1[9], dist2[9]);
+		EXPECT_DOUBLE_EQ(dist1[10], dist2[10]);
+		EXPECT_DOUBLE_EQ(dist1[11], dist2[11]);
+		EXPECT_DOUBLE_EQ(dist1[12], dist2[12]);
+	}
+	
 }
