@@ -19,93 +19,97 @@ using namespace DiceCalculator::Evaluation;
 using namespace DiceCalculator::Operators;
 using namespace DiceCalculator::TestUtilities;
 
-class RollVisitorTest : public TestHelpers
+namespace DiceCalculator::Evaluation
 {
-};
 
-TEST_F(RollVisitorTest, ConstantNodeProducesValue)
-{
-	MockRandom rnd({}); // not used
-	RollAstVisitor visitor(rnd);
+	class RollVisitorTest : public TestHelpers
+	{
+	};
 
-	auto node = CreateConstant(42);
-	node->Accept(visitor);
+	TEST_F(RollVisitorTest, ConstantNodeProducesValue)
+	{
+		MockRandom rnd({}); // not used
+		RollAstVisitor visitor(rnd);
 
-	EXPECT_EQ(visitor.GetResult(), 42);
-}
+		auto node = CreateConstant(42);
+		node->Accept(visitor);
 
-TEST_F(RollVisitorTest, DiceNodeRollsUsingRandom)
-{
-	// Two rolls that return 4 and 5 -> total 9
-	MockRandom rnd({4, 5});
-	RollAstVisitor visitor(rnd);
+		EXPECT_EQ(visitor.GetResult(), 42);
+	}
 
-	auto node = CreateDice(2, 6);
-	node->Accept(visitor);
+	TEST_F(RollVisitorTest, DiceNodeRollsUsingRandom)
+	{
+		// Two rolls that return 4 and 5 -> total 9
+		MockRandom rnd({ 4, 5 });
+		RollAstVisitor visitor(rnd);
 
-	EXPECT_EQ(visitor.GetResult(), 9);
-}
+		auto node = CreateDice(2, 6);
+		node->Accept(visitor);
 
-TEST_F(RollVisitorTest, AdditionOperatorCombinesOperands)
-{
-	// One constant (3) and one dice with a single roll returning 2 -> total 5
-	MockRandom rnd({2});
-	RollAstVisitor visitor(rnd);
+		EXPECT_EQ(visitor.GetResult(), 9);
+	}
 
-	std::vector<std::shared_ptr<DiceAst>> operands;
-	operands.push_back(CreateConstant(3));
-	operands.push_back(CreateDice(1, 4));
+	TEST_F(RollVisitorTest, AdditionOperatorCombinesOperands)
+	{
+		// One constant (3) and one dice with a single roll returning 2 -> total 5
+		MockRandom rnd({ 2 });
+		RollAstVisitor visitor(rnd);
 
-	auto opNode = CreateAdditionNode(std::move(operands));
-	opNode->Accept(visitor);
+		std::vector<std::shared_ptr<DiceAst>> operands;
+		operands.push_back(CreateConstant(3));
+		operands.push_back(CreateDice(1, 4));
 
-	EXPECT_EQ(visitor.GetResult(), 5);
-}
+		auto opNode = CreateAdditionNode(std::move(operands));
+		opNode->Accept(visitor);
 
-TEST_F(RollVisitorTest, AdvantageOperatorTakesMaximum)
-{
-	// Three rolls: 2 and 13 -> advantage is 13. The last roll (3) should be ignored.
-	MockRandom rnd({ 2, 13, 3 });
-	RollAstVisitor visitor(rnd);
+		EXPECT_EQ(visitor.GetResult(), 5);
+	}
 
-	std::shared_ptr<DiceAst> roll = CreateDice(1, 20);
+	TEST_F(RollVisitorTest, AdvantageOperatorTakesMaximum)
+	{
+		// Three rolls: 2 and 13 -> advantage is 13. The last roll (3) should be ignored.
+		MockRandom rnd({ 2, 13, 3 });
+		RollAstVisitor visitor(rnd);
 
-	std::shared_ptr<DiceAst> advantage = CreateAdvantageNode(roll);
+		std::shared_ptr<DiceAst> roll = CreateDice(1, 20);
 
-	advantage->Accept(visitor);
+		std::shared_ptr<DiceAst> advantage = CreateAdvantageNode(roll);
 
-	EXPECT_EQ(visitor.GetResult(), 13);
-}
+		advantage->Accept(visitor);
 
-TEST_F(RollVisitorTest, DisadvantageOperatorTakesMinimum)
-{
-	// Three rolls: 3 and 13 -> disadvantage is 3. The last roll (2) should be ignored.
-	MockRandom rnd({ 3, 13, 2 });
-	RollAstVisitor visitor(rnd);
+		EXPECT_EQ(visitor.GetResult(), 13);
+	}
 
-	std::shared_ptr<DiceAst> roll = CreateDice(1, 20);
+	TEST_F(RollVisitorTest, DisadvantageOperatorTakesMinimum)
+	{
+		// Three rolls: 3 and 13 -> disadvantage is 3. The last roll (2) should be ignored.
+		MockRandom rnd({ 3, 13, 2 });
+		RollAstVisitor visitor(rnd);
 
-	std::shared_ptr<DiceAst> advantage = CreateDisadvantageNode(roll);
+		std::shared_ptr<DiceAst> roll = CreateDice(1, 20);
 
-	advantage->Accept(visitor);
+		std::shared_ptr<DiceAst> advantage = CreateDisadvantageNode(roll);
 
-	EXPECT_EQ(visitor.GetResult(), 3);
-}
+		advantage->Accept(visitor);
 
-// Complex expression: ADV(2d10 + 4) + 1d6
-TEST_F(RollVisitorTest, ComplexExpressionEvaluatesCorrectly)
-{
-	MockRandom rnd({ 1, 2, 3, 4, 5 });
-	RollAstVisitor visitor(rnd);
+		EXPECT_EQ(visitor.GetResult(), 3);
+	}
 
-	std::shared_ptr<DiceAst> innerRoll = CreateDice(2, 10);
-	std::shared_ptr<DiceAst> innerAddition = CreateAdditionNode({ innerRoll, CreateConstant(4) });
-	std::shared_ptr<DiceAst> advantage = CreateAdvantageNode(innerAddition);
-	std::shared_ptr<DiceAst> outerRoll = CreateDice(1, 6);
-	std::shared_ptr<DiceAst> totalExpression = CreateAdditionNode({ advantage, outerRoll });
+	// Complex expression: ADV(2d10 + 4) + 1d6
+	TEST_F(RollVisitorTest, ComplexExpressionEvaluatesCorrectly)
+	{
+		MockRandom rnd({ 1, 2, 3, 4, 5 });
+		RollAstVisitor visitor(rnd);
 
-	totalExpression->Accept(visitor);
+		std::shared_ptr<DiceAst> innerRoll = CreateDice(2, 10);
+		std::shared_ptr<DiceAst> innerAddition = CreateAdditionNode({ innerRoll, CreateConstant(4) });
+		std::shared_ptr<DiceAst> advantage = CreateAdvantageNode(innerAddition);
+		std::shared_ptr<DiceAst> outerRoll = CreateDice(1, 6);
+		std::shared_ptr<DiceAst> totalExpression = CreateAdditionNode({ advantage, outerRoll });
 
-	// Should compute ADV(2d10 + 4) + 1d6 == ADV((1+2) + 4, (3+4) + 4) + 1d6 == ADV(7, 11) + 1d6 == 11 + 5 == 16
-	EXPECT_EQ(visitor.GetResult(), 16);
+		totalExpression->Accept(visitor);
+
+		// Should compute ADV(2d10 + 4) + 1d6 == ADV((1+2) + 4, (3+4) + 4) + 1d6 == ADV(7, 11) + 1d6 == 11 + 5 == 16
+		EXPECT_EQ(visitor.GetResult(), 16);
+	}
 }
