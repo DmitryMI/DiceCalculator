@@ -2,6 +2,7 @@
 
 #include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
 #include "DiceCalculator/Evaluation/TestUtilities.h"
+#include "DiceCalculator/Operators/Subtraction.h"
 
 namespace DiceCalculator::Evaluation
 {
@@ -252,4 +253,73 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[2], 7.0 / 16);
 	}
 	
+	// --- Subtraction operator tests (mirrors addition tests) ---
+
+	TEST_F(DistributionVisitorTest, SubtractionOfThreeConstantsProducesSingleValueDistribution)
+	{
+		auto node1 = CreateConstant(3);
+		auto node2 = CreateConstant(4);
+		auto node3 = CreateConstant(5);
+		auto subtractionNode = std::make_shared<DiceCalculator::Expressions::OperatorNode>(
+			std::make_shared<DiceCalculator::Operators::Subtraction>(),
+			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ node1, node2, node3 });
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		subtractionNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 1u);
+		EXPECT_DOUBLE_EQ(dist[node1->GetValue() - node2->GetValue() - node3->GetValue()], 1.0);
+	}
+
+	TEST_F(DistributionVisitorTest, SubtractionOfSingleDiceAndSingleConstantProducesUniformDistribution)
+	{
+		auto node1 = CreateDice(1, 6);
+		auto node2 = CreateConstant(4);
+		auto subtractionNode = std::make_shared<DiceCalculator::Expressions::OperatorNode>(
+			std::make_shared<DiceCalculator::Operators::Subtraction>(),
+			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ node1, node2 });
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		subtractionNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 6u);
+		EXPECT_DOUBLE_EQ(dist[1 - node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[2 - node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[3 - node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[4 - node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[5 - node2->GetValue()], 1.0 / 6);
+		EXPECT_DOUBLE_EQ(dist[6 - node2->GetValue()], 1.0 / 6);
+	}
+
+	TEST_F(DistributionVisitorTest, SubtractionOfTwoSingleDicesProducesDifferenceDistribution)
+	{
+		auto dice1 = CreateDice(1, 6);
+		auto dice2 = CreateDice(1, 6);
+		auto subtractionNode = std::make_shared<DiceCalculator::Expressions::OperatorNode>(
+			std::make_shared<DiceCalculator::Operators::Subtraction>(),
+			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ dice1, dice2 });
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		subtractionNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		// Difference range: -5..5 (11 values). Counts: 1,2,3,4,5,6,5,4,3,2,1 out of 36
+		EXPECT_EQ(dist.Size(), 11u);
+		EXPECT_DOUBLE_EQ(dist[-5], 1.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[-4], 2.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[-3], 3.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[-2], 4.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[-1], 5.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[0], 6.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[1], 5.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[2], 4.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[3], 3.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[4], 2.0 / 36);
+		EXPECT_DOUBLE_EQ(dist[5], 1.0 / 36);
+	}
 }

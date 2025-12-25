@@ -7,6 +7,7 @@ set(
 	"DiceCalculator/Evaluation/DistributionAstVisitor.cpp"
 	"DiceCalculator/Evaluation/RollAstVisitor.cpp"
 	"DiceCalculator/Operators/Addition.cpp"
+	"DiceCalculator/Operators/Subtraction.cpp"
 	"DiceCalculator/Operators/Advantage.cpp"
 	"DiceCalculator/StdRandom.cpp"
 )
