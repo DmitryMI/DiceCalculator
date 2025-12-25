@@ -8,6 +8,8 @@
 #include "DiceCalculator/Operators/Advantage.h"
 #include "DiceCalculator/IRandom.h"
 
+#include "DiceCalculator/Evaluation/TestUtilities.h"
+
 #include <memory>
 #include <vector>
 
@@ -15,55 +17,10 @@ using namespace DiceCalculator;
 using namespace DiceCalculator::Expressions;
 using namespace DiceCalculator::Evaluation;
 using namespace DiceCalculator::Operators;
+using namespace DiceCalculator::TestUtilities;
 
-namespace
+class RollVisitorTest : public TestHelpers
 {
-	// Simple deterministic IRandom for tests
-	class MockRandom : public IRandom
-	{
-	public:
-		explicit MockRandom(std::vector<int> values) : m_Values(std::move(values)), m_Index(0) {}
-
-		int NextInt(int /*minInclusive*/, int /*maxInclusive*/) override
-		{
-			if (m_Index >= m_Values.size())
-				return 0;
-			return m_Values[m_Index++];
-		}
-
-	private:
-		std::vector<int> m_Values;
-		std::size_t m_Index;
-	};
-}
-
-class RollVisitorTest : public ::testing::Test
-{
-protected:
-	std::shared_ptr<ConstantNode> CreateConstant(int v) const
-	{
-		return std::make_shared<ConstantNode>(v);
-	}
-
-	std::shared_ptr<DiceNode> CreateDice(int rolls, int sides) const
-	{
-		return std::make_shared<DiceNode>(rolls, sides);
-	}
-
-	std::shared_ptr<OperatorNode> CreateAdditionNode(std::vector<std::shared_ptr<DiceAst>> operands) const
-	{
-		return std::make_shared<OperatorNode>(std::make_shared<Addition>(), std::move(operands));
-	}
-
-	std::shared_ptr<OperatorNode> CreateAdvantageNode(std::shared_ptr<DiceAst> operand) const
-	{
-		return std::make_shared<OperatorNode>(std::make_shared<Advantage>(Advantage::Mode::Advantage), std::vector<std::shared_ptr<DiceAst>>{ operand });
-	}
-
-	std::shared_ptr<OperatorNode> CreateDisadvantageNode(std::shared_ptr<DiceAst> operand) const
-	{
-		return std::make_shared<OperatorNode>(std::make_shared<Advantage>(Advantage::Mode::Disadvantage), std::vector<std::shared_ptr<DiceAst>>{ operand });
-	}
 };
 
 TEST_F(RollVisitorTest, ConstantNodeProducesValue)

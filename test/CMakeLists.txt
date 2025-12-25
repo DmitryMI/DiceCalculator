@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(DiceCalculator.Test.Sources 
 	"DiceCalculator/Expressions/DiceAstTest.cpp"
 	"DiceCalculator/Evaluation/RollAstVisitorTest.cpp"
+	"DiceCalculator/Evaluation/DistributionAstVisitorTest.cpp"
 	"DiceCalculator/DistributionTest.cpp"
 )
 
