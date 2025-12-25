@@ -1,33 +1,21 @@
-cmake_minimum_required(VERSION 3.20)
-
-project(DiceCalculator.Test LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(DiceCalculator.Test.Sources 
-	"DiceCalculator/Dummy.cpp"
+set(
+	DiceCalculator.Sources
+	"DiceCalculator/Logging/LogManager.cpp"
 )
 
-enable_testing()
+add_library(DiceCalculator ${DiceCalculator.Sources})
+target_include_directories(DiceCalculator PUBLIC "../public")
+set_property(TARGET DiceCalculator PROPERTY CXX_STANDARD 23)
 
-add_executable(DiceCalculator.Test ${DiceCalculator.Test.Sources} )
-target_link_libraries(DiceCalculator.Test PRIVATE DiceCalculator)
-target_include_directories(DiceCalculator.Test PRIVATE "./")
+# find_package(Boost REQUIRED COMPONENTS signals2 url assert geometry math serialization)
+# target_link_libraries(DiceCalculator PUBLIC Boost::signals2 Boost::url Boost::assert Boost::geometry Boost::math Boost::serialization)
 
 find_package(spdlog REQUIRED)
-target_link_libraries(DiceCalculator.Test PRIVATE spdlog::spdlog)
+target_link_libraries(DiceCalculator PUBLIC spdlog::spdlog)
 
-find_package(gtest REQUIRED)
-target_link_libraries(DiceCalculator.Test PRIVATE GTest::gtest_main GTest::gmock)
-
-include(GoogleTest)
-gtest_discover_tests(DiceCalculator.Test)
+# find_package(Stb REQUIRED)
+# target_include_directories(DiceCalculator PUBLIC ${Stb_INCLUDE_DIR})
 
 if(MSVC)
-	target_compile_options(DiceCalculator PUBLIC /EHa)
+	target_compile_options(DiceCalculator PUBLIC /EHa-)
 endif()
-
-set_property(TARGET DiceCalculator.Test PROPERTY
-  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
