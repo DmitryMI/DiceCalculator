@@ -134,3 +134,21 @@ TEST_F(RollVisitorTest, DisadvantageOperatorTakesMinimum)
 
 	EXPECT_EQ(visitor.GetResult(), 3);
 }
+
+// Complex expression: ADV(2d10 + 4) + 1d6
+TEST_F(RollVisitorTest, ComplexExpressionEvaluatesCorrectly)
+{
+	MockRandom rnd({ 1, 2, 3, 4, 5 });
+	RollAstVisitor visitor(rnd);
+
+	std::shared_ptr<DiceAst> innerRoll = CreateDice(2, 10);
+	std::shared_ptr<DiceAst> innerAddition = CreateAdditionNode({ innerRoll, CreateConstant(4) });
+	std::shared_ptr<DiceAst> advantage = CreateAdvantageNode(innerAddition);
+	std::shared_ptr<DiceAst> outerRoll = CreateDice(1, 6);
+	std::shared_ptr<DiceAst> totalExpression = CreateAdditionNode({ advantage, outerRoll });
+
+	totalExpression->Accept(visitor);
+
+	// Should compute ADV(2d10 + 4) + 1d6 == ADV((1+2) + 4, (3+4) + 4) + 1d6 == ADV(7, 11) + 1d6 == 11 + 5 == 16
+	EXPECT_EQ(visitor.GetResult(), 16);
+}
