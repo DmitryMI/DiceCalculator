@@ -187,6 +187,22 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[3], 5.0 / 9);
 	}
 
+	TEST_F(DistributionVisitorTest, Advantage3OfSingleDice)
+	{
+		auto dice = CreateDice(1, 3);
+		auto advantageNode = CreateAdvantageNode(dice, 3);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		advantageNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 3);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 27);
+		EXPECT_DOUBLE_EQ(dist[2], 7.0 / 27);
+		EXPECT_DOUBLE_EQ(dist[3], 19.0 / 27);
+	}
+
 	TEST_F(DistributionVisitorTest, AdvantageOfSingleDicePlusConstant)
 	{
 		auto dice = CreateDice(1, 3);

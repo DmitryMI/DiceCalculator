@@ -16,7 +16,7 @@ namespace DiceCalculator::Operators
 			Disadvantage
 		};
 
-		Advantage(Mode mode) : m_Mode(mode) {}
+		Advantage(Mode mode, int rerolls = 2) : m_Mode(mode), m_Rerolls(rerolls) {}
 
 		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
@@ -25,5 +25,6 @@ namespace DiceCalculator::Operators
 		Mode GetMode() const { return m_Mode; }
 	private:
 		Mode m_Mode;
+		int m_Rerolls = 2;
 	};
 }

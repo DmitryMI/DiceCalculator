@@ -1,5 +1,6 @@
 #include "DiceCalculator/Operators/Advantage.h"
 #include <stdexcept>
+#include <cmath>
 
 namespace DiceCalculator::Operators
 {
@@ -15,38 +16,45 @@ namespace DiceCalculator::Operators
 			throw std::runtime_error("Advantage operator requires exactly one operand.");
 		}
 
-		operands[0]->Accept(visitor);
-		int result1 = visitor.GetResult();
-		auto records1 = visitor.GetDiceRecords();
-		operands[0]->Accept(visitor);
-		int result2 = visitor.GetResult();
-		auto records2 = visitor.GetDiceRecords();
-		if (m_Mode == Mode::Advantage)
+		std::vector<int> rolledValues;
+		std::vector<std::vector<Evaluation::RollAstVisitor::DiceRollRecord>> rollRecords;
+
+		for (int i = 0; i < m_Rerolls; ++i)
 		{
-			if (result1 > result2)
+			operands[0]->Accept(visitor);
+			int result = visitor.GetResult();
+			auto records = visitor.GetDiceRecords();
+			rolledValues.push_back( result );
+			rollRecords.push_back(records);
+		}
+
+		if (rolledValues.empty())
+		{
+			throw std::runtime_error("Advantage operator performed no rolls.");
+		}
+
+		// Find index of max (advantage) or min (disadvantage)
+		std::size_t bestIndex = 0;
+		for (std::size_t i = 1; i < rolledValues.size(); ++i)
+		{
+			if (m_Mode == Mode::Advantage)
 			{
-				visitor.SetDiceRecords(records1);
-				return result1;
+				if (rolledValues[i] > rolledValues[bestIndex])
+				{
+					bestIndex = i;
+				}
 			}
 			else
 			{
-				visitor.SetDiceRecords(records2);
-				return result2;
+				if (rolledValues[i] < rolledValues[bestIndex])
+				{
+					bestIndex = i;
+				}
 			}
 		}
-		else
-		{
-			if (result1 < result2)
-			{
-				visitor.SetDiceRecords(records1);
-				return result1;
-			}
-			else
-			{
-				visitor.SetDiceRecords(records2);
-				return result2;
-			}
-		}
+
+		visitor.SetDiceRecords(rollRecords[bestIndex]);
+		return rolledValues[bestIndex];
 	}
 
 	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
@@ -67,9 +75,13 @@ namespace DiceCalculator::Operators
 
 		Distribution result;
 
+		// Use m_Rerolls (n draws) in formulas:
+		// P_max(k) = F(k)^n - F(k-1)^n
+		// P_min(k) = S(k)^n - S(k+1)^n
+		const double n = static_cast<double>(std::max(1, m_Rerolls));
+
 		if (m_Mode == Mode::Advantage)
 		{
-			// P_max(k) = F(k)^2 - F(k-1)^2, where F is CDF
 			double cumulative = 0.0;
 			for (auto const& p : d.GetData())
 			{
@@ -77,14 +89,13 @@ namespace DiceCalculator::Operators
 				double pk = p.second;
 				double Fk = cumulative + pk;
 				double Fprev = cumulative;
-				double prob = Fk * Fk - Fprev * Fprev;
+				double prob = std::pow(Fk, n) - std::pow(Fprev, n);
 				result.AddOutcome(k, prob);
 				cumulative = Fk;
 			}
 		}
 		else
 		{
-			// Disadvantage (minimum): P_min(k) = S(k)^2 - S(k+1)^2, where S(k)=P(X>=k) is suffix CDF.
 			double suffix = 0.0;
 			auto const& data = d.GetData();
 			for (auto it = data.rbegin(); it != data.rend(); ++it)
@@ -93,7 +104,7 @@ namespace DiceCalculator::Operators
 				double pk = it->second;
 				double Sk = suffix + pk;        // P(X >= k)
 				double Snext = suffix;         // P(X >= k+1)
-				double prob = Sk * Sk - Snext * Snext;
+				double prob = std::pow(Sk, n) - std::pow(Snext, n);
 				result.AddOutcome(k, prob);
 				suffix = Sk;
 			}
