@@ -108,4 +108,13 @@ namespace DiceCalculator::Operators
 
 		return result;
 	}
+
+	bool Comparison::IsEqual(const DiceOperator& other) const
+	{
+		if (const auto* otherComp = dynamic_cast<const Comparison*>(&other))
+		{
+			return m_Mode == otherComp->m_Mode;
+		}
+		return false;
+	}
 }

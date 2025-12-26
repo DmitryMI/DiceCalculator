@@ -67,4 +67,9 @@ namespace DiceCalculator::Operators
 
 		return totalDistribution;
 	}
+
+	bool Subtraction::IsEqual(const DiceOperator& other) const
+	{
+		return dynamic_cast<const Subtraction*>(&other) != nullptr;
+	}
 }

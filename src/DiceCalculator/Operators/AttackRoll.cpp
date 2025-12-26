@@ -92,4 +92,9 @@ namespace DiceCalculator::Operators
 
 		throw std::runtime_error("AttackRoll distribution evaluation is not implemented.");
 	}
+
+	bool AttackRoll::IsEqual(const DiceOperator& other) const
+	{
+		return dynamic_cast<const AttackRoll*>(&other) != nullptr;
+	}
 }

@@ -16,5 +16,6 @@ namespace DiceCalculator::Expressions
 		virtual ~DiceAst() = default;
 
 		virtual void Accept(DiceCalculator::Evaluation::DiceAstVisitor& visitor) const = 0;
+		virtual bool IsEqual(const DiceAst& other) const = 0;
 	};
 }

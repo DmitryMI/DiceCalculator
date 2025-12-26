@@ -14,7 +14,8 @@ namespace DiceCalculator::Expressions
         int GetSides() const { return m_Sides; }
 
         void Accept(DiceCalculator::Evaluation::DiceAstVisitor& v) const override;
-		
+        bool IsEqual(const DiceAst& other) const override;
+
     private:
         int m_Rolls;
         int m_Sides;

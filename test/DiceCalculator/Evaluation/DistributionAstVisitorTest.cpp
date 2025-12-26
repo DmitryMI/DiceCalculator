@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
-#include "DiceCalculator/Evaluation/TestUtilities.h"
+#include "DiceCalculator/TestUtilities.h"
 #include "DiceCalculator/Operators/Subtraction.h"
 
 namespace DiceCalculator::Evaluation

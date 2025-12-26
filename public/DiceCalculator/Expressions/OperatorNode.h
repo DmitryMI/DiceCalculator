@@ -23,6 +23,7 @@ namespace DiceCalculator::Expressions
 
         const std::vector<std::shared_ptr<DiceAst>>& GetOperands() const;
 		const std::shared_ptr<DiceCalculator::Operators::DiceOperator>& GetOperator() const { return m_Operator; }
+        bool IsEqual(const DiceAst& other) const override;
 
     private:
         std::shared_ptr<DiceCalculator::Operators::DiceOperator> m_Operator;

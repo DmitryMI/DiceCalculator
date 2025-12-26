@@ -25,5 +25,6 @@ namespace DiceCalculator::Operators
 		virtual bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
 		virtual int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
 		virtual Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
+		virtual bool IsEqual(const DiceOperator& other) const = 0;
 	};
 }

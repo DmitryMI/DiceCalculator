@@ -112,4 +112,13 @@ namespace DiceCalculator::Operators
 
 		return result;
 	}
+
+	bool Advantage::IsEqual(const DiceOperator& other) const
+	{
+		if (const auto* otherAdv = dynamic_cast<const Advantage*>(&other))
+		{
+			return m_Mode == otherAdv->m_Mode && m_Rerolls == otherAdv->m_Rerolls;
+		}
+		return false;
+	}
 }

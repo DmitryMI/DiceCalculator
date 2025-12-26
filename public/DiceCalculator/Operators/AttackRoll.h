@@ -18,6 +18,7 @@ namespace DiceCalculator::Operators
 		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		bool IsEqual(const DiceOperator& other) const override;
 
 	private:
 		constexpr static int CriticalHitThreshold = 20;

@@ -9,7 +9,7 @@
 #include "DiceCalculator/Operators/Subtraction.h"
 #include "DiceCalculator/IRandom.h"
 
-#include "DiceCalculator/Evaluation/TestUtilities.h"
+#include "DiceCalculator/TestUtilities.h"
 
 #include <memory>
 #include <vector>

@@ -23,6 +23,9 @@ namespace DiceCalculator::Operators
 		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		
 		Mode GetMode() const { return m_Mode; }
+
+		bool IsEqual(const DiceOperator& other) const override;
+
 	private:
 		Mode m_Mode;
 		int m_Rerolls = 2;

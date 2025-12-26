@@ -1,16 +1,17 @@
 set(
 	DiceCalculator.Sources
-	"DiceCalculator/Logging/LogManager.cpp"
-	"DiceCalculator/Expressions/DiceNode.cpp"
-	"DiceCalculator/Expressions/ConstantNode.cpp"
-	"DiceCalculator/Expressions/OperatorNode.cpp"
 	"DiceCalculator/Evaluation/DistributionAstVisitor.cpp"
 	"DiceCalculator/Evaluation/RollAstVisitor.cpp"
+	"DiceCalculator/Expressions/ConstantNode.cpp"
+	"DiceCalculator/Expressions/DiceNode.cpp"
+	"DiceCalculator/Expressions/OperatorNode.cpp"
+	"DiceCalculator/Logging/LogManager.cpp"
 	"DiceCalculator/Operators/Addition.cpp"
-	"DiceCalculator/Operators/Subtraction.cpp"
 	"DiceCalculator/Operators/Advantage.cpp"
-	"DiceCalculator/Operators/Comparison.cpp"
 	"DiceCalculator/Operators/AttackRoll.cpp"
+	"DiceCalculator/Operators/Comparison.cpp"
+	"DiceCalculator/Operators/Subtraction.cpp"
+	"DiceCalculator/Parsing/BoostSpiritParser.cpp"
 	"DiceCalculator/StdRandom.cpp"
 )
 

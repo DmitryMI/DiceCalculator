@@ -11,6 +11,7 @@
       "features": [ "designer" ]
     },
     "gtest",
-    "spdlog"
+    "spdlog",
+    "boost-spirit"
   ]
 }

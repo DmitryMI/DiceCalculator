@@ -14,6 +14,8 @@ namespace DiceCalculator::Expressions
 
         int GetValue() const;
 
+        bool IsEqual(const DiceAst& other) const override;
+
     private:
         int m_Value;
     };

@@ -43,4 +43,9 @@ namespace DiceCalculator::Operators
 		}
 		return totalDistribution;
 	}
+
+	bool Addition::IsEqual(const DiceOperator& other) const
+	{
+		return dynamic_cast<const Addition*>(&other) != nullptr;
+	}
 }
