@@ -26,9 +26,9 @@ target_link_libraries(DiceCalculator.Test PRIVATE spdlog::spdlog)
 find_package(gtest REQUIRED)
 target_link_libraries(DiceCalculator.Test PRIVATE GTest::gtest_main GTest::gmock)
 
+# Link the shared interface that sets /EHsc on MSVC
+# Ensure compiler_flags is created in a directory processed before this test (top-level or src)
+target_link_libraries(DiceCalculator.Test PRIVATE compiler_flags)
+
 include(GoogleTest)
 gtest_discover_tests(DiceCalculator.Test)
-
-if(MSVC)
-	target_compile_options(DiceCalculator.Test PUBLIC /EHa)
-endif()

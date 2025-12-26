@@ -11,7 +11,7 @@ namespace DiceCalculator::Parsing
 	{
 	};
 
-	TEST_F(BoostSpiritParserTest, DISABLED_ParseSimpleDice)
+	TEST_F(BoostSpiritParserTest, ParseSimpleDice)
 	{
 		BoostSpiritParser parser;
 		const std::string input = "1d6";
@@ -22,7 +22,7 @@ namespace DiceCalculator::Parsing
 		EXPECT_TRUE(ast->IsEqual(*expected)) << "Parsed AST did not match expected for input: " << input;
 	}
 
-	TEST_F(BoostSpiritParserTest, DISABLED_ParseExpressionWithConstantAndAdvantage)
+	TEST_F(BoostSpiritParserTest, ParseExpressionWithConstantAndAdvantage)
 	{
 		BoostSpiritParser parser;
 		const std::string input = "ADV(2d10+4)+1d6";
@@ -37,7 +37,7 @@ namespace DiceCalculator::Parsing
 		EXPECT_TRUE(ast->IsEqual(*expected)) << "Parsed AST did not match expected for input: " << input;
 	}
 
-	TEST_F(BoostSpiritParserTest, DISABLED_ParseComplexNestedComparison)
+	TEST_F(BoostSpiritParserTest, ParseComplexNestedComparison)
 	{
 		BoostSpiritParser parser;
 		const std::string input = "(1d8 + (2d4 - 3)) >= 5";

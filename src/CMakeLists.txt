@@ -20,12 +20,16 @@ target_include_directories(DiceCalculator PUBLIC "../public")
 set_property(TARGET DiceCalculator PROPERTY CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# find_package(Boost REQUIRED COMPONENTS signals2 url assert geometry math serialization)
-# target_link_libraries(DiceCalculator PUBLIC Boost::signals2 Boost::url Boost::assert Boost::geometry Boost::math Boost::serialization)
+find_package(Boost REQUIRED COMPONENTS Spirit)
+target_link_libraries(DiceCalculator PUBLIC Boost::spirit)
 
 find_package(spdlog REQUIRED)
 target_link_libraries(DiceCalculator PUBLIC spdlog::spdlog)
 
-if(MSVC)
-	target_compile_options(DiceCalculator PUBLIC /EHa-)
-endif()
+# Create a reusable interface target and link it to targets that need the flag.
+add_library(compiler_flags INTERFACE)
+target_compile_options(compiler_flags INTERFACE $<$<CXX_COMPILER_ID:MSVC>:/EHsc>)
+
+# then add to your library/targets:
+target_link_libraries(DiceCalculator PUBLIC compiler_flags)
+# repeat for other targets as needed

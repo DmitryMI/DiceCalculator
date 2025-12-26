@@ -3,6 +3,7 @@
 #include "DiceCalculator/Expressions/OperatorNode.h"
 #include "DiceCalculator/Evaluation/DiceAstVisitor.h"
 #include <typeindex>
+#include <stdexcept>
 
 namespace DiceCalculator::Expressions
 {
@@ -20,6 +21,11 @@ namespace DiceCalculator::Expressions
             }
             for (size_t i = 0; i < m_Operands.size(); ++i)
             {
+                if (!m_Operands[i])
+                {
+					throw std::runtime_error("Operand is null in IsEqual comparison.");
+                }
+
                 if (!m_Operands[i]->IsEqual(*otherOp->m_Operands[i]))
                 {
                     return false;
