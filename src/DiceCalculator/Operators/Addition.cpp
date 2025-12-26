@@ -10,11 +10,14 @@ namespace DiceCalculator::Operators
 	int Addition::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		int total = 0;
+		std::vector<DiceCalculator::Evaluation::RollAstVisitor::DiceRollRecord> totalRecords;
 		for (auto& op : operands)
 		{
 			op->Accept(visitor);
 			total += visitor.GetResult();
+			totalRecords.insert(totalRecords.end(), visitor.GetDiceRecords().begin(), visitor.GetDiceRecords().end());
 		}
+		visitor.SetDiceRecords(totalRecords);
 		return total;
 	}
 

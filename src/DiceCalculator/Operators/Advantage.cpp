@@ -17,15 +17,35 @@ namespace DiceCalculator::Operators
 
 		operands[0]->Accept(visitor);
 		int result1 = visitor.GetResult();
+		auto records1 = visitor.GetDiceRecords();
 		operands[0]->Accept(visitor);
 		int result2 = visitor.GetResult();
+		auto records2 = visitor.GetDiceRecords();
 		if (m_Mode == Mode::Advantage)
 		{
-			return std::max(result1, result2);
+			if (result1 > result2)
+			{
+				visitor.SetDiceRecords(records1);
+				return result1;
+			}
+			else
+			{
+				visitor.SetDiceRecords(records2);
+				return result2;
+			}
 		}
 		else
 		{
-			return std::min(result1, result2);
+			if (result1 < result2)
+			{
+				visitor.SetDiceRecords(records1);
+				return result1;
+			}
+			else
+			{
+				visitor.SetDiceRecords(records2);
+				return result2;
+			}
 		}
 	}
 

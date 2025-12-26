@@ -4,25 +4,29 @@
 #include "DiceCalculator/Expressions/DiceAst.h"
 #include "DiceCalculator/Evaluation/RollAstVisitor.h"
 #include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
+#include "DiceCalculator/Expressions/DiceNode.h"
 
 namespace DiceCalculator::Operators
 {
-	class Advantage : public DiceOperator
+	class Comparison : public DiceOperator
 	{
 	public:
 		enum class Mode
 		{
-			Advantage,
-			Disadvantage
+			LessThan,
+			LessThanOrEqual,
+			Equal,
+			NotEqual,
+			GreaterThanOrEqual,
+			GreaterThan
 		};
 
-		Advantage(Mode mode) : m_Mode(mode) {}
+		Comparison(Mode mode) : m_Mode(mode){}
 
 		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
-		
-		Mode GetMode() const { return m_Mode; }
+	
 	private:
 		Mode m_Mode;
 	};

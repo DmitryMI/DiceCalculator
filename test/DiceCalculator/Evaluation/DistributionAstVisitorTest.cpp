@@ -322,4 +322,119 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[4], 2.0 / 36);
 		EXPECT_DOUBLE_EQ(dist[5], 1.0 / 36);
 	}
+
+	TEST_F(DistributionVisitorTest, CompareTwoConstants)
+	{
+		auto node1 = CreateConstant(6);
+		auto node2 = CreateConstant(5);
+		auto lessNode = CreateLessThanNode(node1, node2);
+		auto greaterNode = CreateGreaterThanNode(node1, node2);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		lessNode->Accept(visitor);
+		const auto& dist1 = visitor.GetDistribution();
+		EXPECT_EQ(dist1.Size(), 1);
+		EXPECT_DOUBLE_EQ(dist1[0], 1);
+
+		greaterNode->Accept(visitor);
+		const auto& dist2 = visitor.GetDistribution();
+		ASSERT_EQ(dist2.Size(), 1);
+		EXPECT_DOUBLE_EQ(dist2[1], 1);
+	}
+
+	TEST_F(DistributionVisitorTest, CompareTwoRolls)
+	{
+		auto node1 = CreateDice(1, 3);
+		auto node2 = CreateDice(1, 3);
+		auto lessNode = CreateLessThanNode(node1, node2);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+
+		lessNode->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[1], 3.0 / 9);
+		EXPECT_DOUBLE_EQ(dist[0], 6.0 / 9);
+	}
+
+	/*
+
+	TEST_F(DistributionVisitorTest, AttackRollNormal)
+	{
+		auto node1 = CreateDice(1, 20);
+		auto armorClass = CreateConstant(10);
+		auto attackRoll = CreateAttackRollNode(node1, armorClass);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		attackRoll->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[0], 9.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 11.0 / 20);
+	}
+
+	TEST_F(DistributionVisitorTest, AttackRollOnlyCritHitWillHit)
+	{
+		auto node1 = CreateDice(1, 20);
+		auto armorClass = CreateConstant(30);
+		auto attackRoll = CreateAttackRollNode(node1, armorClass);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		attackRoll->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[0], 19.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 20);
+	}
+
+	TEST_F(DistributionVisitorTest, AttackRollOnlyCritMissWillMiss)
+	{
+		auto node1 = CreateDice(1, 20);
+		auto armorClass = CreateConstant(1);
+		auto attackRoll = CreateAttackRollNode(node1, armorClass);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		attackRoll->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[1], 19.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 1.0 / 20);
+	}
+
+	TEST_F(DistributionVisitorTest, AttackRollLowAcWithAdvantage)
+	{
+		auto node1 = CreateDice(1, 20);
+		auto armorClass = CreateConstant(1);
+		auto attackRoll = CreateAttackRollNode(CreateAdvantageNode(node1), armorClass);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		attackRoll->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[0], 1.0 / 20 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 1 - dist[0]);
+	}
+
+	TEST_F(DistributionVisitorTest, AttackRollHighAcWithDisadvantage)
+	{
+		auto node1 = CreateDice(1, 20);
+		auto armorClass = CreateConstant(30);
+		auto attackRoll = CreateAttackRollNode(CreateDisadvantageNode(node1), armorClass);
+
+		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		attackRoll->Accept(visitor);
+		const auto& dist = visitor.GetDistribution();
+
+		EXPECT_EQ(dist.Size(), 2);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 20 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 1 - dist[1]);
+	}
+
+	*/
 }

@@ -6,7 +6,10 @@
 #include "DiceCalculator/Expressions/DiceNode.h"
 #include "DiceCalculator/Expressions/OperatorNode.h"
 #include "DiceCalculator/Operators/Addition.h"
+#include "DiceCalculator/Operators/Subtraction.h"
 #include "DiceCalculator/Operators/Advantage.h"
+#include "DiceCalculator/Operators/Comparison.h"
+#include "DiceCalculator/Operators/AttackRoll.h"
 #include "DiceCalculator/IRandom.h"
 
 #include <memory>
@@ -51,6 +54,11 @@ namespace DiceCalculator::TestUtilities
 			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Addition>(), std::move(operands));
 		}
 
+		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateSubtractionNode(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+		{
+			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Subtraction>(), std::move(operands));
+		}
+
 		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateAdvantageNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> operand) const
 		{
 			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Advantage>(DiceCalculator::Operators::Advantage::Mode::Advantage), std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ operand });
@@ -59,6 +67,46 @@ namespace DiceCalculator::TestUtilities
 		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateDisadvantageNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> operand) const
 		{
 			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Advantage>(DiceCalculator::Operators::Advantage::Mode::Disadvantage), std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ operand });
+		}
+
+		auto CreateAttackRollNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> attack, std::shared_ptr<DiceCalculator::Expressions::DiceAst> armorClass) const
+		{
+			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::AttackRoll>(), std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ attack, armorClass});
+		}
+
+		auto CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode mode, std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Comparison>(mode), std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ leftOperand, rightOperand});
+		}
+
+		auto CreateLessThanNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::LessThan, leftOperand, rightOperand);
+		}
+
+		auto CreateLessThanOrEqualNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::LessThanOrEqual, leftOperand, rightOperand);
+		}
+
+		auto CreateEqualNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::Equal, leftOperand, rightOperand);
+		}
+
+		auto CreateNotEqualNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::NotEqual, leftOperand, rightOperand);
+		}
+
+		auto CreateGreaterThanOrEqualNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::GreaterThanOrEqual, leftOperand, rightOperand);
+		}
+
+		auto CreateGreaterThanNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> leftOperand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rightOperand) const
+		{
+			return CreateComparisonNode(DiceCalculator::Operators::Comparison::Mode::GreaterThan, leftOperand, rightOperand);
 		}
 	};
 }

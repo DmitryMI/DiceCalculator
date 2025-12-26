@@ -13,6 +13,7 @@ namespace DiceCalculator::Evaluation
 		void Visit(const DiceCalculator::Expressions::OperatorNode& node) override;
 
 		const DiceCalculator::Distribution& GetDistribution() const { return m_Distribution; }
+
 	private:
 		DiceCalculator::Distribution m_Distribution;
 	};

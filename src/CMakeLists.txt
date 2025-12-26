@@ -9,6 +9,8 @@ set(
 	"DiceCalculator/Operators/Addition.cpp"
 	"DiceCalculator/Operators/Subtraction.cpp"
 	"DiceCalculator/Operators/Advantage.cpp"
+	"DiceCalculator/Operators/Comparison.cpp"
+	"DiceCalculator/Operators/AttackRoll.cpp"
 	"DiceCalculator/StdRandom.cpp"
 )
 

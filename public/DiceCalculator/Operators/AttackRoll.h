@@ -1,0 +1,55 @@
+#pragma once
+
+#include "DiceCalculator/Operators/DiceOperator.h"
+#include "DiceCalculator/Expressions/DiceAst.h"
+#include "DiceCalculator/Evaluation/RollAstVisitor.h"
+#include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
+#include "DiceCalculator/Expressions/DiceNode.h"
+#include "DiceCalculator/Expressions/OperatorNode.h"
+
+namespace DiceCalculator::Operators
+{
+	class AttackRoll : public DiceOperator
+	{
+	public:
+
+		AttackRoll() {}
+
+		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+
+	private:
+		constexpr static int CriticalHitThreshold = 20;
+		constexpr static int CriticalMissThreshold = 1;
+
+		class DiceCounterVisitor : public DiceCalculator::Evaluation::DiceAstVisitor
+		{
+		public:
+			int D20Count = 0;
+
+			void Visit(const DiceCalculator::Expressions::ConstantNode& node) override
+			{
+
+			}
+
+			void Visit(const DiceCalculator::Expressions::DiceNode& node) override
+			{
+				if (node.GetSides() == 20)
+				{
+					D20Count += node.GetRolls();
+				}
+			}
+
+			void Visit(const DiceCalculator::Expressions::OperatorNode& node) override
+			{
+				for (const auto& operand : node.GetOperands())
+				{
+					operand->Accept(*this);
+				}
+			}
+		};
+
+		bool ValidateAttackRollOperand(const std::shared_ptr<DiceCalculator::Expressions::DiceAst>& operand, bool& hasD20) const;
+	};
+}

@@ -11,18 +11,25 @@ namespace DiceCalculator::Operators
 	int Subtraction::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (operands.empty())
+		{
 			return 0;
+		}
 
-		// Evaluate first operand
+		std::vector<DiceCalculator::Evaluation::RollAstVisitor::DiceRollRecord> totalRecords;
+
 		operands[0]->Accept(visitor);
 		int total = visitor.GetResult();
+		const auto& records = visitor.GetDiceRecords();
+		totalRecords.insert(totalRecords.end(), records.begin(), records.end());
 
-		// Subtract subsequent operands
 		for (size_t i = 1; i < operands.size(); ++i)
 		{
 			operands[i]->Accept(visitor);
 			total -= visitor.GetResult();
+			const auto& records = visitor.GetDiceRecords();
+			totalRecords.insert(totalRecords.end(), records.begin(), records.end());
 		}
+		visitor.SetDiceRecords(totalRecords);
 
 		return total;
 	}
