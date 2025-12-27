@@ -72,9 +72,9 @@ namespace DiceCalculator::Operators
 
 		Distribution result;
 
-		for (const auto& [value1, prob1] : d1.GetData())
+		for (const auto& [value1, prob1, d20Lhs] : d1.GetData())
 		{
-			for (const auto& [value2, prob2] : d2.GetData())
+			for (const auto& [value2, prob2, d20Rhs] : d2.GetData())
 			{
 				bool comparisonResult = false;
 				switch (m_Mode)
@@ -102,7 +102,7 @@ namespace DiceCalculator::Operators
 				}
 				int outcomeValue = comparisonResult ? 1 : 0;
 				double outcomeProb = prob1 * prob2;
-				result.AddOutcome(outcomeValue, outcomeProb);
+				result.AddOutcome(outcomeValue, outcomeProb, d20Lhs);
 			}
 		}
 

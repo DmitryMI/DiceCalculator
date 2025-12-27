@@ -34,9 +34,11 @@ namespace DiceCalculator::Evaluation
 		else
 		{
 			double faceProb = 1.0 / static_cast<double>(sides);
+			
 			for (int face = 1; face <= sides; ++face)
 			{
-				singleDie.AddOutcome(face, faceProb);
+				int d20Value = (sides == 20) ? face : 0;
+				singleDie.AddOutcome(face, faceProb, d20Value);
 			}
 		}
 
@@ -48,16 +50,16 @@ namespace DiceCalculator::Evaluation
 			// Reserve approximate size: current distinct sums * sides
 			next.Reserve(m_Distribution.Size() * (sides > 0 ? static_cast<size_t>(sides) : 1));
 
-			for (auto const& pair : m_Distribution)
+			for (auto const& outcome : m_Distribution)
 			{
-				int baseValue = pair.first;
-				double baseProb = pair.second;
+				int baseValue = outcome.Value;
+				double baseProb = outcome.Probability;
 				// convolve with single die outcomes
 				for (auto const& facePair : singleDie)
 				{
-					int newValue = baseValue + facePair.first;
-					double newProb = baseProb * facePair.second;
-					next.AddOutcome(newValue, newProb);
+					int newValue = baseValue + facePair.Value;
+					double newProb = baseProb * facePair.Probability;
+					next.AddOutcome(newValue, newProb, outcome.D20);
 				}
 			}
 

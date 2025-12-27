@@ -85,12 +85,12 @@ namespace DiceCalculator::Operators
 			double cumulative = 0.0;
 			for (auto const& p : d.GetData())
 			{
-				int k = p.first;
-				double pk = p.second;
+				int k = p.Value;
+				double pk = p.Probability;
 				double Fk = cumulative + pk;
 				double Fprev = cumulative;
 				double prob = std::pow(Fk, n) - std::pow(Fprev, n);
-				result.AddOutcome(k, prob);
+				result.AddOutcome(k, prob, k);
 				cumulative = Fk;
 			}
 		}
@@ -100,12 +100,12 @@ namespace DiceCalculator::Operators
 			auto const& data = d.GetData();
 			for (auto it = data.rbegin(); it != data.rend(); ++it)
 			{
-				int k = it->first;
-				double pk = it->second;
+				int k = it->Value;
+				double pk = it->Probability;
 				double Sk = suffix + pk;        // P(X >= k)
 				double Snext = suffix;         // P(X >= k+1)
 				double prob = std::pow(Sk, n) - std::pow(Snext, n);
-				result.AddOutcome(k, prob);
+				result.AddOutcome(k, prob, k);
 				suffix = Sk;
 			}
 		}
