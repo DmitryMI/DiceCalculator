@@ -53,14 +53,13 @@ namespace DiceCalculator::Operators
 
 			Distribution newTotalDistribution;
 			// Combine the current total distribution with the new operand distribution (subtraction)
-			for (const auto& [totalValue, totalProb, d20Lhs] : totalDistribution)
+			for (const auto& [totalValue, totalProb] : totalDistribution)
 			{
-				for (const auto& [opValue, opProb, d20Rhs] : opDistribution)
+				for (const auto& [opValue, opProb] : opDistribution)
 				{
 					int newValue = totalValue - opValue;
 					double newProb = totalProb * opProb;
-					newTotalDistribution[newValue].Probability += newProb;
-					newTotalDistribution[newValue].D20 = d20Lhs;
+					newTotalDistribution[newValue] += newProb;
 				}
 			}
 			totalDistribution = std::move(newTotalDistribution);
