@@ -122,12 +122,12 @@ namespace DiceCalculator::Operators
 		return false;
 	}
 
-	std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Advantage::Register()
+	std::vector<OperatorRegistry::Entry> Advantage::Register()
 	{
 		registered = true;
 		return {
-			{ "ADV", []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); } },
-			{ "DIS", []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); } }
+			{ OperatorRegistry::Entry{"ADV", OperatorRegistry::Arity::Nary, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
+			{ OperatorRegistry::Entry{"DIS", OperatorRegistry::Arity::Nary, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
 		};
 	}
 }

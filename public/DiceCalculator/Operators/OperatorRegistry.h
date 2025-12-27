@@ -14,10 +14,27 @@ namespace DiceCalculator::Operators
 {
     class DiceOperator;
 
+   
+
+
 	class OperatorRegistry
 	{
     public:
         using Factory = std::function<std::shared_ptr<DiceOperator>()>;
+
+        enum class Arity
+        {
+            Nary,
+            Unary,
+            Binary,
+        };
+
+        struct Entry
+        {
+            std::string Name;
+            Arity Arity;
+            std::function<std::shared_ptr<DiceOperator>()> FactoryFunc;
+        };
 
         static OperatorRegistry& Instance()
         {
@@ -25,34 +42,44 @@ namespace DiceCalculator::Operators
             return instance;
         }
 
-        void Register(std::string_view name, Factory factory)
+        void Register(Entry entry)
         {
-            auto [it, inserted] = factories.emplace(name, std::move(factory));
+            auto [it, inserted] = m_Registry.emplace(entry.Name, std::move(entry));
             if (!inserted)
             {
-                throw std::runtime_error("Function already registered: " + std::string(name));
+                throw std::runtime_error("Function already registered: " + std::string(entry.Name));
             }
         }
 
         std::shared_ptr<DiceOperator> Create(std::string_view name) const
         {
-            auto it = factories.find(name);
-            if (it == factories.end())
+            auto it = m_Registry.find(std::string(name));
+            if (it == m_Registry.end())
             {
                 throw std::runtime_error("Unknown function: " + std::string(name));
             }
-            return it->second();
+            return it->second.FactoryFunc();
         }
 
+        const Entry& GetEntry(std::string_view name) const
+        {
+            auto it = m_Registry.find(std::string(name));
+            if (it == m_Registry.end())
+            {
+                throw std::runtime_error("Unknown function: " + std::string(name));
+            }
+            return it->second;
+		}
+
     private:
-        std::unordered_map<std::string_view, Factory> factories;
+        std::unordered_map<std::string, Entry> m_Registry;
 	};
 
     template <typename Derived>
     struct AutoRegister
     {
         static bool registered;
-        static std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Register();
+        static std::vector<OperatorRegistry::Entry> Register();
     };
 
     template<typename Derived>
@@ -60,11 +87,8 @@ namespace DiceCalculator::Operators
         auto entries = Derived::Register();
         for (const auto& entry : entries)
         {
-            const auto& name = entry.first;
-			const auto& instantiator = entry.second;
             OperatorRegistry::Instance().Register(
-                name,
-                instantiator
+                entry
             );
         }
         return true;

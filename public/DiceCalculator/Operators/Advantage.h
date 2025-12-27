@@ -26,7 +26,7 @@ namespace DiceCalculator::Operators
 
 		bool IsEqual(const DiceOperator& other) const override;
 
-		static std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Register();
+		static std::vector<OperatorRegistry::Entry> Register();
 
 	private:
 		Mode m_Mode;

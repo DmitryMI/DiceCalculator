@@ -20,7 +20,7 @@ namespace DiceCalculator::Operators
 		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		bool IsEqual(const DiceOperator& other) const override;
 
-		static std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Register();
+		static std::vector<OperatorRegistry::Entry> Register();
 
 	private:
 		constexpr static int CriticalHitThreshold = 20;
