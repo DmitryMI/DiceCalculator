@@ -7,7 +7,7 @@
 
 namespace DiceCalculator::Operators
 {
-	class Advantage : public DiceOperator
+	class Advantage : public DiceOperator, public AutoRegister<Advantage>
 	{
 	public:
 		enum class Mode
@@ -26,8 +26,12 @@ namespace DiceCalculator::Operators
 
 		bool IsEqual(const DiceOperator& other) const override;
 
+		static std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Register();
+
 	private:
 		Mode m_Mode;
 		int m_Rerolls = 2;
+
+		
 	};
 }

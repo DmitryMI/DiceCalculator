@@ -121,4 +121,13 @@ namespace DiceCalculator::Operators
 		}
 		return false;
 	}
+
+	std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Advantage::Register()
+	{
+		registered = true;
+		return {
+			{ "ADV", []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); } },
+			{ "DIS", []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); } }
+		};
+	}
 }

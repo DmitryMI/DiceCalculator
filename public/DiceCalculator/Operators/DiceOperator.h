@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "DiceCalculator/Distribution.h"
+#include "DiceCalculator/Operators/OperatorRegistry.h"
 
 namespace DiceCalculator::Evaluation
 {

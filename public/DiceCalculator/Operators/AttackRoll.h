@@ -9,7 +9,7 @@
 
 namespace DiceCalculator::Operators
 {
-	class AttackRoll : public DiceOperator
+	class AttackRoll : public DiceOperator, AutoRegister<AttackRoll>
 	{
 	public:
 
@@ -19,6 +19,8 @@ namespace DiceCalculator::Operators
 		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		bool IsEqual(const DiceOperator& other) const override;
+
+		static std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> Register();
 
 	private:
 		constexpr static int CriticalHitThreshold = 20;

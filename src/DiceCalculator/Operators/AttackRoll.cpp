@@ -97,4 +97,12 @@ namespace DiceCalculator::Operators
 	{
 		return dynamic_cast<const AttackRoll*>(&other) != nullptr;
 	}
+
+	std::vector<std::pair<std::string_view, OperatorRegistry::Factory>> AttackRoll::Register()
+	{
+		registered = true;
+		return {
+			{ "AttackRoll", []() { return std::make_shared<AttackRoll>(); } }
+		};
+	}
 }
