@@ -9,7 +9,7 @@ namespace DiceCalculator::Operators
 		return operands.size() == 1;
 	}
 
-	int Advantage::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Advantage::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -57,7 +57,7 @@ namespace DiceCalculator::Operators
 		return rolledValues[bestIndex];
 	}
 
-	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -111,6 +111,11 @@ namespace DiceCalculator::Operators
 		}
 
 		return result;
+	}
+
+	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		throw std::runtime_error("Combination evaluation not implemented.");
 	}
 
 	bool Advantage::IsEqual(const DiceOperator& other) const

@@ -1,6 +1,7 @@
 set(
 	DiceCalculator.Sources
-	"DiceCalculator/Evaluation/DistributionAstVisitor.cpp"
+	"DiceCalculator/Evaluation/ConvolutionAstVisitor.cpp"
+	"DiceCalculator/Evaluation/CombinationAstVisitor.cpp"
 	"DiceCalculator/Evaluation/RollAstVisitor.cpp"
 	"DiceCalculator/Expressions/ConstantNode.cpp"
 	"DiceCalculator/Expressions/DiceNode.cpp"

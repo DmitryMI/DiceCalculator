@@ -8,7 +8,7 @@ namespace DiceCalculator::Operators
 		return operands.size() == 2;
 	}
 
-	int Comparison::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Comparison::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -47,7 +47,7 @@ namespace DiceCalculator::Operators
 	}
 
 
-	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -107,6 +107,12 @@ namespace DiceCalculator::Operators
 		}
 
 		return result;
+	}
+
+
+	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		throw std::runtime_error("Combination evaluation not implemented.");
 	}
 
 	bool Comparison::IsEqual(const DiceOperator& other) const

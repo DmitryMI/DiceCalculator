@@ -29,6 +29,6 @@ namespace DiceCalculator::Evaluation
 	void RollAstVisitor::Visit(const Expressions::OperatorNode& node)
 	{
 		m_DiceRecords.clear();
-		m_Result = node.GetOperator()->Roll(*this, node.GetOperands());
+		m_Result = node.GetOperator()->Evaluate(*this, node.GetOperands());
 	}
 }

@@ -7,7 +7,7 @@ namespace DiceCalculator::Operators
 		return true;
 	}
 
-	int Addition::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Addition::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		int total = 0;
 		std::vector<DiceCalculator::Evaluation::RollAstVisitor::DiceRollRecord> totalRecords;
@@ -21,7 +21,7 @@ namespace DiceCalculator::Operators
 		return total;
 	}
 
-	Distribution Addition::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Addition::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		Distribution totalDistribution = { {0, 1} };
 		for (auto& op : operands)
@@ -42,6 +42,11 @@ namespace DiceCalculator::Operators
 			totalDistribution = std::move(newTotalDistribution);
 		}
 		return totalDistribution;
+	}
+
+	Distribution Addition::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		throw std::runtime_error("Combination evaluation not implemented.");
 	}
 
 	bool Addition::IsEqual(const DiceOperator& other) const

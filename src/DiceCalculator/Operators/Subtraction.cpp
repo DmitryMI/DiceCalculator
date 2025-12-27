@@ -8,7 +8,7 @@ namespace DiceCalculator::Operators
 		return operands.size() >= 1;
 	}
 
-	int Subtraction::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Subtraction::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (operands.empty())
 		{
@@ -34,7 +34,7 @@ namespace DiceCalculator::Operators
 		return total;
 	}
 
-	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (operands.empty())
 		{
@@ -71,6 +71,11 @@ namespace DiceCalculator::Operators
 	bool Subtraction::IsEqual(const DiceOperator& other) const
 	{
 		return dynamic_cast<const Subtraction*>(&other) != nullptr;
+	}
+
+	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		throw std::runtime_error("Combination evaluation not implemented.");
 	}
 
 	std::vector<OperatorRegistry::Entry> Subtraction::Register()

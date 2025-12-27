@@ -24,7 +24,7 @@ namespace DiceCalculator::Operators
 		return false;
 	}
 
-	int AttackRoll::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int AttackRoll::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -83,7 +83,7 @@ namespace DiceCalculator::Operators
 		}
 	}
 
-	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -91,6 +91,12 @@ namespace DiceCalculator::Operators
 		}
 
 		throw std::runtime_error("AttackRoll distribution evaluation is not implemented.");
+	}
+
+
+	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		throw std::runtime_error("Combination evaluation not implemented.");
 	}
 
 	bool AttackRoll::IsEqual(const DiceOperator& other) const
