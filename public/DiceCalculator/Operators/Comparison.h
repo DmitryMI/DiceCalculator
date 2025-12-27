@@ -5,6 +5,7 @@
 #include "DiceCalculator/Evaluation/RollAstVisitor.h"
 #include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/Expressions/DiceNode.h"
+#include "DiceCalculator/Evaluation/CombinationAstVisitor.h"
 
 namespace DiceCalculator::Operators
 {

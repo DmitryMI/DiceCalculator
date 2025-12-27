@@ -75,7 +75,40 @@ namespace DiceCalculator::Operators
 
 	std::vector<Combination> Subtraction::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		throw std::runtime_error("Combination evaluation not implemented.");
+		if (operands.empty())
+		{
+			return {};
+		}
+
+		// Start with combinations of the first operand
+		operands[0]->Accept(visitor);
+		std::vector<Combination> total = visitor.GetCombinations();
+
+		// Subtract subsequent operands' totals, concatenating their rolls
+		for (size_t i = 1; i < operands.size(); ++i)
+		{
+			operands[i]->Accept(visitor);
+			const auto& opCombinations = visitor.GetCombinations();
+
+			std::vector<Combination> newTotal;
+			newTotal.reserve(static_cast<size_t>(total.size()) * static_cast<size_t>(opCombinations.size()));
+
+			for (const auto& t : total)
+			{
+				for (const auto& oc : opCombinations)
+				{
+					Combination combined;
+					combined.TotalValue = t.TotalValue - oc.TotalValue;
+					combined.Rolls = t.Rolls;
+					combined.Rolls.insert(combined.Rolls.end(), oc.Rolls.begin(), oc.Rolls.end());
+					newTotal.push_back(std::move(combined));
+				}
+			}
+
+			total = std::move(newTotal);
+		}
+
+		return total;
 	}
 
 	std::vector<OperatorRegistry::Entry> Subtraction::Register()

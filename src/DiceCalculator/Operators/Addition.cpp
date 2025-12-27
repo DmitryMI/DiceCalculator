@@ -46,7 +46,33 @@ namespace DiceCalculator::Operators
 
 	std::vector<Combination> Addition::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		throw std::runtime_error("Combination evaluation not implemented.");
+		// Start with a single empty combination
+		std::vector<Combination> total = { Combination{ 0, {} } };
+
+		for (auto& op : operands)
+		{
+			op->Accept(visitor);
+			const auto& opCombinations = visitor.GetCombinations();
+
+			std::vector<Combination> newTotal;
+			newTotal.reserve(static_cast<size_t>(total.size()) * static_cast<size_t>(opCombinations.size()));
+
+			for (const auto& t : total)
+			{
+				for (const auto& oc : opCombinations)
+				{
+					Combination combined;
+					combined.TotalValue = t.TotalValue + oc.TotalValue;
+					combined.Rolls = t.Rolls;
+					combined.Rolls.insert(combined.Rolls.end(), oc.Rolls.begin(), oc.Rolls.end());
+					newTotal.push_back(std::move(combined));
+				}
+			}
+
+			total = std::move(newTotal);
+		}
+
+		return total;
 	}
 
 	bool Addition::IsEqual(const DiceOperator& other) const
