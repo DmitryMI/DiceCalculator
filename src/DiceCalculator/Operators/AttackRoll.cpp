@@ -94,7 +94,7 @@ namespace DiceCalculator::Operators
 	}
 
 
-	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	std::vector<Combination> AttackRoll::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		throw std::runtime_error("Combination evaluation not implemented.");
 	}

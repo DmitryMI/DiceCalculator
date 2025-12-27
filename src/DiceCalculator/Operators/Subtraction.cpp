@@ -73,7 +73,7 @@ namespace DiceCalculator::Operators
 		return dynamic_cast<const Subtraction*>(&other) != nullptr;
 	}
 
-	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	std::vector<Combination> Subtraction::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		throw std::runtime_error("Combination evaluation not implemented.");
 	}

@@ -110,7 +110,7 @@ namespace DiceCalculator::Operators
 	}
 
 
-	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	std::vector<Combination> Comparison::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		throw std::runtime_error("Combination evaluation not implemented.");
 	}

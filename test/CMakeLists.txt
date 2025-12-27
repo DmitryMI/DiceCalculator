@@ -10,6 +10,7 @@ set(DiceCalculator.Test.Sources
 	"DiceCalculator/Expressions/DiceAstTest.cpp"
 	"DiceCalculator/Evaluation/RollAstVisitorTest.cpp"
 	"DiceCalculator/Evaluation/ConvolutionAstVisitorTest.cpp"
+	"DiceCalculator/Evaluation/CombinationAstVisitorTest.cpp"
 	"DiceCalculator/Parsing/BoostSpiritParserTest.cpp"
 	"DiceCalculator/DistributionTest.cpp"
 )

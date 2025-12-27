@@ -113,7 +113,7 @@ namespace DiceCalculator::Operators
 		return result;
 	}
 
-	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	std::vector<Combination> Advantage::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		throw std::runtime_error("Combination evaluation not implemented.");
 	}

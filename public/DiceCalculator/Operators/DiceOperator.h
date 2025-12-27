@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "DiceCalculator/Distribution.h"
+#include "DiceCalculator/Combination.h"
 #include "DiceCalculator/Operators/OperatorRegistry.h"
 
 namespace DiceCalculator::Evaluation
@@ -29,6 +30,6 @@ namespace DiceCalculator::Operators
 
 		virtual int Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
 		virtual Distribution Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
-		virtual Distribution Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
+		virtual std::vector<Combination> Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const = 0;
 	};
 }
