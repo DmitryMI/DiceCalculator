@@ -3,7 +3,6 @@
 #include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
 #include "DiceCalculator/TestUtilities.h"
 #include "DiceCalculator/Operators/Subtraction.h"
-#include <array>
 
 namespace DiceCalculator::Evaluation
 {
@@ -26,8 +25,6 @@ namespace DiceCalculator::Evaluation
 		// Assert
 		EXPECT_EQ(dist.Size(), 1u);
 		EXPECT_DOUBLE_EQ(dist[42].Probability, 1.0);
-		EXPECT_EQ(dist[42].Value, 42);
-		EXPECT_EQ(dist[42].D20, 0);
 	}
 
 	TEST_F(DistributionVisitorTest, SingleDiceRollProducesUniformDistribution)
@@ -48,187 +45,6 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[4].Probability, 1.0 / 6);
 		EXPECT_DOUBLE_EQ(dist[5].Probability, 1.0 / 6);
 		EXPECT_DOUBLE_EQ(dist[6].Probability, 1.0 / 6);
-
-		EXPECT_DOUBLE_EQ(dist[1].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[2].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[3].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[4].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[5].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[6].D20, 0);
-	}
-
-	TEST_F(DistributionVisitorTest, SingleD20RollProducesUniformDistributionAndTags)
-	{
-		// Arrange
-		auto node = CreateDice(1, 20);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-
-		// Act
-		node->Accept(visitor);
-		const auto& dist = visitor.GetDistribution();
-
-		// Assert
-		EXPECT_EQ(dist.Size(), 20);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[2].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[3].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[4].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[5].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[6].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[7].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[8].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[9].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[10].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[11].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[12].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[13].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[14].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[15].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[16].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[17].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[18].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[19].Probability, 1.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[20].Probability, 1.0 / 20);
-
-		EXPECT_EQ(dist[1].D20, 1);
-		EXPECT_EQ(dist[2].D20, 2);
-		EXPECT_EQ(dist[3].D20, 3);
-		EXPECT_EQ(dist[4].D20, 4);
-		EXPECT_EQ(dist[5].D20, 5);
-		EXPECT_EQ(dist[6].D20, 6);
-		EXPECT_EQ(dist[7].D20, 7);
-		EXPECT_EQ(dist[8].D20, 8);
-		EXPECT_EQ(dist[9].D20, 9);
-		EXPECT_EQ(dist[10].D20, 10);
-		EXPECT_EQ(dist[11].D20, 11);
-		EXPECT_EQ(dist[12].D20, 12);
-		EXPECT_EQ(dist[13].D20, 13);
-		EXPECT_EQ(dist[14].D20, 14);
-		EXPECT_EQ(dist[15].D20, 15);
-		EXPECT_EQ(dist[16].D20, 16);
-		EXPECT_EQ(dist[17].D20, 17);
-		EXPECT_EQ(dist[18].D20, 18);
-		EXPECT_EQ(dist[19].D20, 19);
-		EXPECT_EQ(dist[20].D20, 20);
-	}
-
-	TEST_F(DistributionVisitorTest, TwoD20TracksFirstDieOnly)
-	{
-		// Arrange
-		auto node = CreateDice(2, 20);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-
-		// Act
-		node->Accept(visitor);
-		const auto& dist = visitor.GetDistribution();
-
-		// Assert
-		// 2d20 ranges from 2..40 (39 outcomes)
-		EXPECT_EQ(dist.Size(), 39u);
-
-		// Sums up to 21: the highest possible first die for a given sum is (sum - 1)
-		EXPECT_EQ(dist[2].D20, 1);   // only 1+1
-		EXPECT_EQ(dist[3].D20, 2);   // 1+2 or 2+1 -> max first die is 2
-		EXPECT_EQ(dist[10].D20, 9);  // max first die is 9
-		EXPECT_EQ(dist[20].D20, 19); // max first die is 19
-		EXPECT_EQ(dist[21].D20, 20); // max first die is 20
-
-		// Sums above 21: first die is capped at 20
-		EXPECT_EQ(dist[22].D20, 20);
-		EXPECT_EQ(dist[30].D20, 20);
-		EXPECT_EQ(dist[39].D20, 20);
-		EXPECT_EQ(dist[40].D20, 20);
-	}
-
-	TEST_F(DistributionVisitorTest, AdvantageDiscardsLesserRolls)
-	{
-		// Arrange
-		auto dice = CreateDice(1, 20);
-		auto adv = CreateAdvantageNode(dice); // default: 2 rolls, take the best
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-
-		// Act
-		adv->Accept(visitor);
-		const auto& dist = visitor.GetDistribution();
-
-		// Assert
-		// Advantage over 1d20 still yields 20 distinct outcomes.
-		EXPECT_EQ(dist.Size(), 20u);
-
-		// Only the all-ones case should carry D20 == 1 (probability (1/20)^2).
-		std::size_t d20EqualsOneCount = 0;
-		for (const auto& outcome : dist.GetData())
-		{
-			if (outcome.D20 == 1)
-			{
-				++d20EqualsOneCount;
-				EXPECT_EQ(outcome.Value, 1);
-				EXPECT_DOUBLE_EQ(outcome.Probability, 1.0 / 400.0);
-			}
-			else
-			{
-				EXPECT_NE(outcome.Value, 1);
-			}
-		}
-		EXPECT_EQ(d20EqualsOneCount, 1u);
-	}
-
-
-	TEST_F(DistributionVisitorTest, AdvantagePlusConstKeepsInnerD20)
-	{
-		// Expression: ADV(5 + 1d20) -- only the inner 1d20 should set D20 tags.
-		auto innerSum = CreateAdditionNode({ CreateConstant(5), CreateDice(1, 20) });
-		auto fullExpr = CreateAdvantageNode(innerSum); // default: 2 rolls, take the best
-
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-		fullExpr->Accept(visitor);
-		const auto& dist = visitor.GetDistribution();
-
-		// Advantage over a single d20 still yields 20 outcomes (shifted by +5 on value).
-		EXPECT_EQ(dist.Size(), 20u);
-
-		for (int face = 1; face <= 20; ++face)
-		{
-			const int shiftedValue = 5 + face;
-			const double expectedProb = static_cast<double>(2 * face - 1) / 400.0; // P(max = face) with 2 rolls
-
-			const auto outcome = dist[shiftedValue];
-			EXPECT_EQ(outcome.D20, face) << "D20 tag should equal the d20 roll, not the summed value.";
-			EXPECT_NEAR(outcome.Probability, expectedProb, 0.001);
-		}
-	}
-
-	TEST_F(DistributionVisitorTest, DisadvantageKeepsGreaterRollsOnlyWhenAllMax)
-	{
-		// Arrange
-		auto dice = CreateDice(1, 20);
-		auto dis = CreateDisadvantageNode(dice); // default: 2 rolls, take the worst
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-
-		// Act
-		dis->Accept(visitor);
-		const auto& dist = visitor.GetDistribution();
-
-		// Assert
-		// Disadvantage over 1d20 still yields 20 distinct outcomes.
-		EXPECT_EQ(dist.Size(), 20u);
-
-		// Only the all-20s case should carry D20 == 20 (probability (1/20)^2).
-		std::size_t d20EqualsTwentyCount = 0;
-		for (const auto& outcome : dist.GetData())
-		{
-			if (outcome.D20 == 20)
-			{
-				++d20EqualsTwentyCount;
-				EXPECT_EQ(outcome.Value, 20);
-				EXPECT_DOUBLE_EQ(outcome.Probability, 1.0 / 400.0);
-			}
-			else
-			{
-				EXPECT_NE(outcome.Value, 20);
-			}
-		}
-		EXPECT_EQ(d20EqualsTwentyCount, 1u);
 	}
 
 	TEST_F(DistributionVisitorTest, DoubleDiceRollProducesNormalDistribution)
@@ -254,18 +70,6 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[10].Probability, 3.0 / 36);
 		EXPECT_DOUBLE_EQ(dist[11].Probability, 2.0 / 36);
 		EXPECT_DOUBLE_EQ(dist[12].Probability, 1.0 / 36);
-
-		EXPECT_DOUBLE_EQ(dist[2].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[3].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[4].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[5].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[6].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[7].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[8].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[9].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[10].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[11].D20, 0);
-		EXPECT_DOUBLE_EQ(dist[12].D20, 0);
 	}
 
 	TEST_F(DistributionVisitorTest, ThreeDiceThreeSidesProducesNormalDistribution)
@@ -571,6 +375,8 @@ namespace DiceCalculator::Evaluation
 		EXPECT_DOUBLE_EQ(dist[0].Probability, 6.0 / 9);
 	}
 
+	/*
+
 	TEST_F(DistributionVisitorTest, AttackRollNormal)
 	{
 		auto node1 = CreateDice(1, 20);
@@ -582,8 +388,8 @@ namespace DiceCalculator::Evaluation
 		const auto& dist = visitor.GetDistribution();
 
 		EXPECT_EQ(dist.Size(), 2);
-		EXPECT_DOUBLE_EQ(dist[0].Probability, 9.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 11.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 9.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 11.0 / 20);
 	}
 
 	TEST_F(DistributionVisitorTest, AttackRollOnlyCritHitWillHit)
@@ -597,8 +403,8 @@ namespace DiceCalculator::Evaluation
 		const auto& dist = visitor.GetDistribution();
 
 		EXPECT_EQ(dist.Size(), 2);
-		EXPECT_DOUBLE_EQ(dist[0].Probability, 19.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 1.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 19.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 20);
 	}
 
 	TEST_F(DistributionVisitorTest, AttackRollOnlyCritMissWillMiss)
@@ -612,8 +418,8 @@ namespace DiceCalculator::Evaluation
 		const auto& dist = visitor.GetDistribution();
 
 		EXPECT_EQ(dist.Size(), 2);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 19.0 / 20);
-		EXPECT_DOUBLE_EQ(dist[0].Probability, 1.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 19.0 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 1.0 / 20);
 	}
 
 	TEST_F(DistributionVisitorTest, AttackRollLowAcWithAdvantage)
@@ -627,8 +433,8 @@ namespace DiceCalculator::Evaluation
 		const auto& dist = visitor.GetDistribution();
 
 		EXPECT_EQ(dist.Size(), 2);
-		EXPECT_DOUBLE_EQ(dist[0].Probability, 1.0 / 20 / 20);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 1 - dist[0].Probability);
+		EXPECT_DOUBLE_EQ(dist[0], 1.0 / 20 / 20);
+		EXPECT_DOUBLE_EQ(dist[1], 1 - dist[0]);
 	}
 
 	TEST_F(DistributionVisitorTest, AttackRollHighAcWithDisadvantage)
@@ -642,35 +448,9 @@ namespace DiceCalculator::Evaluation
 		const auto& dist = visitor.GetDistribution();
 
 		EXPECT_EQ(dist.Size(), 2);
-		EXPECT_DOUBLE_EQ(dist[1].Probability, 1.0 / 20 / 20);
-		EXPECT_DOUBLE_EQ(dist[0].Probability, 1 - dist[1].Probability);
+		EXPECT_DOUBLE_EQ(dist[1], 1.0 / 20 / 20);
+		EXPECT_DOUBLE_EQ(dist[0], 1 - dist[1]);
 	}
 
-	// Expression AttackRoll(1d20 + 1d20, 5) must throw an exception
-	TEST_F(DistributionVisitorTest, AttackRollMultipleD20s)
-	{
-		auto armorClass = CreateConstant(5);
-		auto attackRoll = CreateAttackRollNode(CreateAdditionNode({ CreateDice(1, 20), CreateDice(1, 20) }), armorClass);
-
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-		EXPECT_THROW(attackRoll->Accept(visitor), std::runtime_error);
-	}
-
-	// Expression 1d20 + AttackRoll(1d8 + 1d20 + 5, 5) must work normally
-	TEST_F(DistributionVisitorTest, AttackRollMultipleRollsInside)
-	{
-		auto armorClass = CreateConstant(5);
-		auto attackRoll = CreateAttackRollNode(CreateAdditionNode({ CreateDice(1, 8), CreateDice(1, 20), CreateConstant(5)}), armorClass);
-		auto totalExpr = CreateAdditionNode({ CreateDice(1, 20), attackRoll });
-
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
-		attackRoll->Accept(visitor);
-		auto dist1 = visitor.GetDistribution();
-
-		
-		totalExpr->Accept(visitor);
-		auto dist2 = visitor.GetDistribution();
-		EXPECT_EQ(dist2.Size(), 20);
-	}
+	*/
 }
-

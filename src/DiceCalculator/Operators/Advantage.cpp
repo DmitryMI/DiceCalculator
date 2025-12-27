@@ -90,7 +90,7 @@ namespace DiceCalculator::Operators
 				double Fk = cumulative + pk;
 				double Fprev = cumulative;
 				double prob = std::pow(Fk, n) - std::pow(Fprev, n);
-				result.AddOutcome(k, prob, p.D20);
+				result.AddOutcome(k, prob, k);
 				cumulative = Fk;
 			}
 		}
@@ -105,7 +105,7 @@ namespace DiceCalculator::Operators
 				double Sk = suffix + pk;        // P(X >= k)
 				double Snext = suffix;         // P(X >= k+1)
 				double prob = std::pow(Sk, n) - std::pow(Snext, n);
-				result.AddOutcome(k, prob, it->D20);
+				result.AddOutcome(k, prob, k);
 				suffix = Sk;
 			}
 		}

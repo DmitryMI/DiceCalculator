@@ -100,10 +100,9 @@ namespace DiceCalculator::Operators
 					default:
 						throw std::runtime_error("Invalid comparison mode.");
 				}
-				int d20 = d20Lhs != 0 ? d20Lhs : d20Rhs;
 				int outcomeValue = comparisonResult ? 1 : 0;
 				double outcomeProb = prob1 * prob2;
-				result.AddOutcome(outcomeValue, outcomeProb, d20);
+				result.AddOutcome(outcomeValue, outcomeProb, d20Lhs);
 			}
 		}
 
