@@ -13,6 +13,8 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseSimpleDice)
 	{
+		// ASSERT_TRUE(DiceCalculator::Operators::Advantage::registered);
+
 		BoostSpiritParser parser;
 		const std::string input = "1d6";
 		auto ast = parser.Parse(input);
