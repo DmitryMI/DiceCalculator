@@ -90,7 +90,50 @@ namespace DiceCalculator::Operators
 			throw std::runtime_error("AttackRoll operands are invalid.");
 		}
 
-		throw std::runtime_error("AttackRoll distribution evaluation is not implemented.");
+		operands[0]->Accept(visitor);
+		Distribution d1 = visitor.GetDistribution();
+
+		if (d1.Size() == 0)
+		{
+			throw std::runtime_error("First operand has an empty distribution.");
+		}
+
+		operands[1]->Accept(visitor);
+		Distribution d2 = visitor.GetDistribution();
+
+		if (d2.Size() == 0)
+		{
+			throw std::runtime_error("First operand has an empty distribution.");
+		}
+
+		Distribution result;
+
+		for (const auto& [value1, prob1, d20Lhs] : d1.GetData())
+		{
+			if (d20Lhs == 0)
+			{
+				throw std::runtime_error("First operand must include a d20 roll for attack roll evaluation.");
+			}
+
+			for (const auto& [value2, prob2, d20Rhs] : d2.GetData())
+			{
+				bool comparisonResult = value1 >= value2;
+				if (d20Lhs >= CriticalHitThreshold)
+				{
+					comparisonResult = true; // Critical hit
+				}
+				else if(d20Lhs <= CriticalMissThreshold)
+				{
+					comparisonResult = false; // Critical miss
+				}
+				
+				int outcomeValue = comparisonResult ? 1 : 0;
+				double outcomeProb = prob1 * prob2;
+				result.AddOutcome(outcomeValue, outcomeProb, d20Lhs);
+			}
+		}
+
+		return result;
 	}
 
 	bool AttackRoll::IsEqual(const DiceOperator& other) const

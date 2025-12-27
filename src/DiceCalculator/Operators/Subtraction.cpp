@@ -57,10 +57,11 @@ namespace DiceCalculator::Operators
 			{
 				for (const auto& [opValue, opProb, d20Rhs] : opDistribution)
 				{
+					int d20 = d20Lhs != 0 ? d20Lhs : d20Rhs;
 					int newValue = totalValue - opValue;
 					double newProb = totalProb * opProb;
 					newTotalDistribution[newValue].Probability += newProb;
-					newTotalDistribution[newValue].D20 = d20Lhs;
+					newTotalDistribution[newValue].D20 = d20;
 				}
 			}
 			totalDistribution = std::move(newTotalDistribution);
