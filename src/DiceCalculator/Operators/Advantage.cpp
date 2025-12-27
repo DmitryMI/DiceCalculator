@@ -126,8 +126,8 @@ namespace DiceCalculator::Operators
 	{
 		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"ADV", OperatorRegistry::Arity::Nary, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
-			{ OperatorRegistry::Entry{"DIS", OperatorRegistry::Arity::Nary, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
+			{ OperatorRegistry::Entry{"ADV", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
+			{ OperatorRegistry::Entry{"DIS", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
 		};
 	}
 }

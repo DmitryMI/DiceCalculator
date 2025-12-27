@@ -102,7 +102,7 @@ namespace DiceCalculator::Operators
 	{
 		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"AttackRoll", OperatorRegistry::Arity::Nary, []() { return std::make_shared<AttackRoll>(); }} }
+			{ OperatorRegistry::Entry{"AttackRoll", OperatorRegistry::Arity::Function, []() { return std::make_shared<AttackRoll>(); }} }
 		};
 	}
 }

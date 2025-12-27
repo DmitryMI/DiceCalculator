@@ -82,27 +82,39 @@ namespace DiceCalculator::Parsing
 				}
 			}
 
-			if (name == "+")
-			{
-				return MakeAddition(args[0], args[1]);
-			}
-			else if (name == "-")
-			{
-				return MakeSubtraction(args[0], args[1]);
-			}
-
-			auto op = Operators::OperatorRegistry::Instance().Create(name);
-			return std::make_shared<OperatorNode>(op, args);
+			auto opEntry = Operators::OperatorRegistry::Instance().GetEntry(name, OperatorRegistry::Arity::Function);
+			return std::make_shared<OperatorNode>(opEntry.FactoryFunc(), args);
 		}
 
-		static DiceAstPtr MakeBinaryCall(const std::string& name,
+		static DiceAstPtr MakeOperator(const std::string& name, const std::vector<DiceAstPtr>& args)
+		{
+			for (const auto& arg : args)
+			{
+				if (arg == nullptr)
+				{
+					throw std::runtime_error("Null argument in function call: " + name);
+				}
+			}
+
+			if(args.size() > 2)
+			{
+				throw std::runtime_error("Operator " + name + " called with too many operands.");
+			}
+
+			auto arity = static_cast<OperatorRegistry::Arity>(args.size());
+			auto opEntry = Operators::OperatorRegistry::Instance().GetEntry(name, arity);
+			
+			return std::make_shared<OperatorNode>(opEntry.FactoryFunc(), args);
+		}
+
+		static DiceAstPtr MakeBinaryOperator(const std::string& name,
 			const DiceAstPtr& lhs,
 			const DiceAstPtr& rhs)
 		{
 			std::vector<DiceAstPtr> args;
 			args.push_back(lhs);
 			args.push_back(rhs);
-			return MakeFunction(name, args);
+			return MakeOperator(name, args);
 		}
 
 	}
@@ -147,23 +159,28 @@ namespace DiceCalculator::Parsing
 			[qi::_val = qi::_1]
 			;
 
-		// additive: left-associative chain of + and -
+		// additive: left-associative chain of registered binary operators
+		qi::symbols<char, std::string> binaryOps;
+		for (const auto& entry : Operators::OperatorRegistry::Instance().GetBinaryOperators())
+		{
+			// Register operator symbol (e.g., "+", "-") mapped to its name
+			binaryOps.add(entry.Name, entry.Name);
+		}
+
 		additive =
 			primary
 			[qi::_val = qi::_1]
 			>> *(
-				('+' >> primary)
-				[qi::_val = phoenix::bind(&MakeBinaryCall,
-					"+",
-					qi::_val,
-					qi::_1)]
-
-				| ('-' >> primary)
-				[qi::_val = phoenix::bind(&MakeBinaryCall,
-					"-",
-					qi::_val,
-					qi::_1)]
-				);
+				(binaryOps >> primary)
+				[
+					qi::_val = phoenix::bind(
+						&MakeBinaryOperator,
+						qi::_1,    // operator name from registry
+						qi::_val,  // current accumulated lhs
+						qi::_2     // rhs
+					)
+				]
+			);
 
 
 		// comparison: support comparison operators. Use qi::lit to suppress operator attributes
