@@ -2,6 +2,8 @@
 
 #include <qmainwindow.h>
 #include <spdlog/spdlog.h>
+#include <QSpacerItem>
+#include "DiceCalculator/Ui/Widgets/DiceExpressionBlock.h"
 #include "ui_MainWindow.h"
 
 namespace DiceCalculator::Ui
@@ -19,5 +21,9 @@ namespace DiceCalculator::Ui
 
 		// Widgets
 		Ui_MainWindow m_Ui;
+		QSpacerItem* m_ScrollAreaSpacerItem{ nullptr };
+
+		void AddExpressionBlock();
+		void RemoveExpressionBlock(Widgets::DiceExpressionBlock* block);
 	};
 }

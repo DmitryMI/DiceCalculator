@@ -17,6 +17,8 @@ qt_standard_project_setup()
 set(AppSources
 	"main.cpp" 
 	"DiceCalculator/Ui/MainWindow.cpp"
+    "DiceCalculator/Ui/Widgets/DiceExpressionInput.cpp"
+    "DiceCalculator/Ui/Widgets/DiceExpressionBlock.cpp"
 )
 
 # qt_add_resources(AppSources "CityDraft/Resources.qrc")
