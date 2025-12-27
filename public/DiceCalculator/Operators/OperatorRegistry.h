@@ -126,6 +126,19 @@ namespace DiceCalculator::Operators
             return result;
         }
 
+        std::vector<Entry> GetFunctions() const
+        {
+            std::vector<Entry> result;
+            for (const auto& [key, entry] : m_Registry)
+            {
+                if (key.Arity == Arity::Function)
+                {
+                    result.push_back(entry);
+                }
+            }
+            return result;
+        }
+
     private:
         std::unordered_map<Key, Entry, KeyHash> m_Registry;
 	};

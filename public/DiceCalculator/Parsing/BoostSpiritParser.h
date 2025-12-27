@@ -10,5 +10,7 @@ namespace DiceCalculator::Parsing
 		virtual ~BoostSpiritParser() = default;
 		std::shared_ptr<DiceCalculator::Expressions::DiceAst> Parse(const std::string& input) const override;
 		std::string Reconstruct(const std::shared_ptr<DiceCalculator::Expressions::DiceAst>& ast) const override;
+	private:
+		std::string ReconstructInternal(const std::shared_ptr<DiceCalculator::Expressions::DiceAst>& ast, bool isChildOfOperator) const;
 	};
 }

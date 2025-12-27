@@ -104,5 +104,31 @@ namespace DiceCalculator::Parsing
 
 		EXPECT_TRUE(ast->IsEqual(*expected)) << "Parsed AST did not match expected for input: " << input;
 	}
+
+	TEST_F(BoostSpiritParserTest, ParseAndReconstructComplexNestedComparison)
+	{
+		BoostSpiritParser parser;
+		const std::string input = "(1d8 + (2d4 - 3)) >= 5";
+		auto ast = parser.Parse(input);
+		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
+
+		auto reconstructed = parser.Reconstruct(ast);
+		EXPECT_EQ(reconstructed, input) << "Reconstructed expression did not match original input.";
+		auto reparsedAst = parser.Parse(reconstructed);
+		EXPECT_TRUE(reparsedAst->IsEqual(*ast)) << "Re-parsed AST did not match original AST.";
+	}
+
+	TEST_F(BoostSpiritParserTest, ParseAndReconstructExpressionWithFunctions)
+	{
+		BoostSpiritParser parser;
+		const std::string input = "(1d8 + (ADV(2d4) - AttackRoll(1d20, 13))) >= DIS(2d6)";
+		auto ast = parser.Parse(input);
+		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
+
+		auto reconstructed = parser.Reconstruct(ast);
+		EXPECT_EQ(reconstructed, input) << "Reconstructed expression did not match original input.";
+		auto reparsedAst = parser.Parse(reconstructed);
+		EXPECT_TRUE(reparsedAst->IsEqual(*ast)) << "Re-parsed AST did not match original AST.";
+	}
 }
 

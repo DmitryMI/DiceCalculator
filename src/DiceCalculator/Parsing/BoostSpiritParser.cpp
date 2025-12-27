@@ -215,7 +215,96 @@ namespace DiceCalculator::Parsing
 
 	std::string BoostSpiritParser::Reconstruct(const std::shared_ptr<DiceCalculator::Expressions::DiceAst>& ast) const
 	{
-		// Not required by current tests; leave minimal implementation.
-		return {};
+		return ReconstructInternal(ast, false);
+	}
+
+	std::string BoostSpiritParser::ReconstructInternal(const std::shared_ptr<DiceCalculator::Expressions::DiceAst>& ast, bool isChildOfOperator) const
+	{
+		if (!ast)
+		{
+			return "";
+		}
+
+		// Try to downcast to known node types
+		if (auto constantNode = std::dynamic_pointer_cast<const ConstantNode>(ast))
+		{
+			return std::to_string(constantNode->GetValue());
+		}
+
+		if (auto diceNode = std::dynamic_pointer_cast<const DiceNode>(ast))
+		{
+			return std::to_string(diceNode->GetRolls()) + "d" + std::to_string(diceNode->GetSides());
+		}
+
+		if (auto operatorNode = std::dynamic_pointer_cast<const OperatorNode>(ast))
+		{
+			const auto& operands = operatorNode->GetOperands();
+			const auto& op = operatorNode->GetOperator();
+
+			// Special handling for comparison operators
+			if (auto comparisonOp = std::dynamic_pointer_cast<const Comparison>(op))
+			{
+				std::string lhs = ReconstructInternal(operands[0], true);
+				std::string rhs = ReconstructInternal(operands[1], true);
+
+				std::string opSymbol;
+				switch (comparisonOp->GetMode())
+				{
+				case Comparison::Mode::LessThan:
+					opSymbol = "<";
+					break;
+				case Comparison::Mode::LessThanOrEqual:
+					opSymbol = "<=";
+					break;
+				case Comparison::Mode::Equal:
+					opSymbol = "==";
+					break;
+				case Comparison::Mode::NotEqual:
+					opSymbol = "!=";
+					break;
+				case Comparison::Mode::GreaterThanOrEqual:
+					opSymbol = ">=";
+					break;
+				case Comparison::Mode::GreaterThan:
+					opSymbol = ">";
+					break;
+				}
+				std::string result = lhs + " " + opSymbol + " " + rhs;
+				return isChildOfOperator ? "(" + result + ")" : result;
+			}
+
+			// Try to find the binary operator name in the registry
+			for (const auto& entry : Operators::OperatorRegistry::Instance().GetBinaryOperators())
+			{
+				if (op->IsEqual(*entry.FactoryFunc()))
+				{
+					std::string lhs = ReconstructInternal(operands[0], true);
+					std::string rhs = ReconstructInternal(operands[1], true);
+					std::string result = lhs + " " + entry.Name + " " + rhs;
+					return isChildOfOperator ? "(" + result + ")" : result;
+				}
+			}
+
+			for (const auto& entry : Operators::OperatorRegistry::Instance().GetFunctions())
+			{
+				if (op->IsEqual(*entry.FactoryFunc()))
+				{
+					std::string args;
+					for (size_t i = 0; i < operands.size(); ++i)
+					{
+						if (i > 0)
+						{
+							args += ", ";
+						}
+						args += ReconstructInternal(operands[i], false);
+					}
+					return entry.Name + "(" + args + ")";
+				}
+			}
+
+			return "";
+		}
+
+		return "";
 	}
 }
