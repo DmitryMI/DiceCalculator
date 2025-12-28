@@ -90,7 +90,7 @@ namespace DiceCalculator::Operators
 			throw std::runtime_error("AttackRoll operands are invalid.");
 		}
 
-		throw std::runtime_error("AttackRoll distribution evaluation is not implemented.");
+		throw std::runtime_error("Convolutional evaluation is not implemented for AttackRoll function.");
 	}
 
 
