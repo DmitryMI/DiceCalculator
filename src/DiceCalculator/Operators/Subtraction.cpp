@@ -111,11 +111,10 @@ namespace DiceCalculator::Operators
 		return total;
 	}
 
-	std::vector<OperatorRegistry::Entry> Subtraction::Register()
+	std::vector<RegistryEntry> Subtraction::Register()
 	{
-		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"-", OperatorRegistry::Arity::Binary, []() { return std::make_shared<Subtraction>(); }} }
+			{ RegistryEntry{"-", Arity::Binary, []() { return std::make_shared<Subtraction>(); }} }
 		};
 	}
 }

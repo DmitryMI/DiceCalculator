@@ -202,12 +202,11 @@ namespace DiceCalculator::Operators
 		return false;
 	}
 
-	std::vector<OperatorRegistry::Entry> Advantage::Register()
+	std::vector<RegistryEntry> Advantage::Register()
 	{
-		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"ADV", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
-			{ OperatorRegistry::Entry{"DIS", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
+			{ RegistryEntry{"ADV", Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
+			{ RegistryEntry{"DIS", Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
 		};
 	}
 }

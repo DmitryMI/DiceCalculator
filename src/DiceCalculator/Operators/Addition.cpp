@@ -80,11 +80,10 @@ namespace DiceCalculator::Operators
 		return dynamic_cast<const Addition*>(&other) != nullptr;
 	}
 
-	std::vector<OperatorRegistry::Entry> Addition::Register()
+	std::vector<RegistryEntry> Addition::Register()
 	{
-		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"+", OperatorRegistry::Arity::Binary, []() { return std::make_shared<Addition>(); }} }
+			{ RegistryEntry{"+", Arity::Binary, []() { return std::make_shared<Addition>(); }} }
 		};
 	}
 }

@@ -5,10 +5,11 @@
 #include "DiceCalculator/Evaluation/RollAstVisitor.h"
 #include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/Evaluation/CombinationAstVisitor.h"
+#include "DiceCalculator/Operators/IRegistry.h"
 
 namespace DiceCalculator::Operators
 {
-	class Advantage : public DiceOperator, public AutoRegister<Advantage>
+	class Advantage : public DiceOperator
 	{
 	public:
 		enum class Mode
@@ -28,7 +29,7 @@ namespace DiceCalculator::Operators
 
 		bool IsEqual(const DiceOperator& other) const override;
 
-		static std::vector<OperatorRegistry::Entry> Register();
+		static std::vector<RegistryEntry> Register();
 
 	private:
 		Mode m_Mode;

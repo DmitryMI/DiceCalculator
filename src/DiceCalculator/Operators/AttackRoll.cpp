@@ -171,11 +171,11 @@ namespace DiceCalculator::Operators
 		return dynamic_cast<const AttackRoll*>(&other) != nullptr;
 	}
 
-	std::vector<OperatorRegistry::Entry> AttackRoll::Register()
+	std::vector<RegistryEntry> AttackRoll::Register()
 	{
-		registered = true;
+
 		return {
-			{ OperatorRegistry::Entry{"AttackRoll", OperatorRegistry::Arity::Function, []() { return std::make_shared<AttackRoll>(); }} }
+			{ RegistryEntry{"AttackRoll", Arity::Function, []() { return std::make_shared<AttackRoll>(); }} }
 		};
 	}
 }

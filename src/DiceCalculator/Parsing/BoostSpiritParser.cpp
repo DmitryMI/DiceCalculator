@@ -11,7 +11,7 @@
 #include "DiceCalculator/Operators/Advantage.h"
 #include "DiceCalculator/Operators/Comparison.h"
 #include "DiceCalculator/Operators/AttackRoll.h"
-#include "DiceCalculator/Operators/OperatorRegistry.h"
+#include "DiceCalculator/Operators/IRegistry.h"
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix.hpp>
@@ -72,7 +72,7 @@ namespace DiceCalculator::Parsing
 			return std::make_shared<OperatorNode>(std::make_shared<AttackRoll>(), std::vector<DiceAstPtr>{ left, right });
 		}
 
-		static DiceAstPtr MakeFunction(const std::string& name, const std::vector<DiceAstPtr>& args)
+		static DiceAstPtr MakeFunction(std::shared_ptr<IRegistry> registry, const std::string& name, const std::vector<DiceAstPtr>& args)
 		{
 			for (const auto& arg : args)
 			{
@@ -82,11 +82,11 @@ namespace DiceCalculator::Parsing
 				}
 			}
 
-			auto opEntry = Operators::OperatorRegistry::Instance().GetEntry(name, OperatorRegistry::Arity::Function);
+			auto opEntry = registry->GetEntry(name, Operators::Arity::Function);
 			return std::make_shared<OperatorNode>(opEntry.FactoryFunc(), args);
 		}
 
-		static DiceAstPtr MakeOperator(const std::string& name, const std::vector<DiceAstPtr>& args)
+		static DiceAstPtr MakeOperator(std::shared_ptr<IRegistry> registry, const std::string& name, const std::vector<DiceAstPtr>& args)
 		{
 			for (const auto& arg : args)
 			{
@@ -101,21 +101,29 @@ namespace DiceCalculator::Parsing
 				throw std::runtime_error("Operator " + name + " called with too many operands.");
 			}
 
-			auto arity = static_cast<OperatorRegistry::Arity>(args.size());
-			auto opEntry = Operators::OperatorRegistry::Instance().GetEntry(name, arity);
+			auto arity = static_cast<Arity>(args.size());
+			auto opEntry = registry->GetEntry(name, arity);
 			
 			return std::make_shared<OperatorNode>(opEntry.FactoryFunc(), args);
 		}
 
-		static DiceAstPtr MakeBinaryOperator(const std::string& name,
+		static DiceAstPtr MakeBinaryOperator(
+			std::shared_ptr<IRegistry> registry,
+			const std::string& name,
 			const DiceAstPtr& lhs,
 			const DiceAstPtr& rhs)
 		{
 			std::vector<DiceAstPtr> args;
 			args.push_back(lhs);
 			args.push_back(rhs);
-			return MakeOperator(name, args);
+			return MakeOperator(registry, name, args);
 		}
+
+	}
+
+	BoostSpiritParser::BoostSpiritParser(std::shared_ptr<Operators::IRegistry> registry):
+		m_Registry(std::move(registry))
+	{
 
 	}
 
@@ -142,7 +150,7 @@ namespace DiceCalculator::Parsing
 		functionCall =
 			(identifier >> '(' >> argumentList >> ')')
 			[
-				qi::_val = phoenix::bind(&MakeFunction, qi::_1, qi::_2)
+				qi::_val = phoenix::bind(&MakeFunction, m_Registry, qi::_1, qi::_2)
 			];
 
 		// primary: dice, number, ADV(...), parenthesized expression
@@ -161,7 +169,7 @@ namespace DiceCalculator::Parsing
 
 		// additive: left-associative chain of registered binary operators
 		qi::symbols<char, std::string> binaryOps;
-		auto binaryOperatorEntries = Operators::OperatorRegistry::Instance().GetBinaryOperators();
+		auto binaryOperatorEntries = m_Registry->GetOperatorsByArity(Arity::Binary);
 		assert(binaryOperatorEntries.size() > 0 && "No binary operators registered.");
 		for (const auto& entry : binaryOperatorEntries)
 		{
@@ -177,6 +185,7 @@ namespace DiceCalculator::Parsing
 				[
 					qi::_val = phoenix::bind(
 						&MakeBinaryOperator,
+						m_Registry,
 						qi::_1,    // operator name from registry
 						qi::_val,  // current accumulated lhs
 						qi::_2     // rhs
@@ -209,7 +218,7 @@ namespace DiceCalculator::Parsing
 
 		if (!ok)
 		{
-			return nullptr;
+			throw std::runtime_error("Invalid syntax.");
 		}
 
 		return result;
@@ -276,7 +285,7 @@ namespace DiceCalculator::Parsing
 			}
 
 			// Try to find the binary operator name in the registry
-			for (const auto& entry : Operators::OperatorRegistry::Instance().GetBinaryOperators())
+			for (const auto& entry : m_Registry->GetOperatorsByArity(Arity::Binary))
 			{
 				if (op->IsEqual(*entry.FactoryFunc()))
 				{
@@ -287,7 +296,7 @@ namespace DiceCalculator::Parsing
 				}
 			}
 
-			for (const auto& entry : Operators::OperatorRegistry::Instance().GetFunctions())
+			for (const auto& entry : m_Registry->GetOperatorsByArity(Arity::Function))
 			{
 				if (op->IsEqual(*entry.FactoryFunc()))
 				{

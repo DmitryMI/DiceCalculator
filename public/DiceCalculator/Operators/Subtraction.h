@@ -5,10 +5,11 @@
 #include "DiceCalculator/Evaluation/RollAstVisitor.h"
 #include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/Evaluation/CombinationAstVisitor.h"
+#include "DiceCalculator/Operators/IRegistry.h"
 
 namespace DiceCalculator::Operators
 {
-	class Subtraction : public DiceOperator, public AutoRegister<Subtraction>
+	class Subtraction : public DiceOperator
 	{
 	public:
 		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
@@ -16,6 +17,6 @@ namespace DiceCalculator::Operators
 		Distribution Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		std::vector<Combination> Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		bool IsEqual(const DiceOperator& other) const override;
-		static std::vector<OperatorRegistry::Entry> Register();
+		static std::vector<RegistryEntry> Register();
 	};
 }

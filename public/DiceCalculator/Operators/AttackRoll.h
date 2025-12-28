@@ -7,10 +7,11 @@
 #include "DiceCalculator/Expressions/DiceNode.h"
 #include "DiceCalculator/Expressions/OperatorNode.h"
 #include "DiceCalculator/Evaluation/CombinationAstVisitor.h"
+#include "DiceCalculator/Operators/IRegistry.h"
 
 namespace DiceCalculator::Operators
 {
-	class AttackRoll : public DiceOperator, AutoRegister<AttackRoll>
+	class AttackRoll : public DiceOperator
 	{
 	public:
 
@@ -22,7 +23,7 @@ namespace DiceCalculator::Operators
 		std::vector<Combination> Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		bool IsEqual(const DiceOperator& other) const override;
 
-		static std::vector<OperatorRegistry::Entry> Register();
+		static std::vector<RegistryEntry> Register();
 
 	private:
 		constexpr static int CriticalHitThreshold = 20;
