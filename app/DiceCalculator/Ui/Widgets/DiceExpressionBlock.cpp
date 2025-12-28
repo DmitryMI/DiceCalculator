@@ -46,15 +46,15 @@ namespace DiceCalculator::Ui::Widgets
 			m_DiceExpressionInput->ClearMessages();
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParseErrorOccurred, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParsingFinished, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
 			m_DiceExpressionInput->AppendMessage(errorMessage, messageType);
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationErrorOccurred, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationMessage, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
 			m_DiceExpressionInput->AppendMessage(errorMessage, messageType);
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationCompleted, this, [this](const QString& message, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationFinished, this, [this](const QString& message, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
 			m_DiceExpressionInput->AppendMessage(message, messageType);
 			});
 
