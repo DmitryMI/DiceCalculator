@@ -285,7 +285,7 @@ namespace DiceCalculator::Evaluation
 		// Build ADV(5) where operand is a constant
 		auto c5 = CreateConstant(5);
 		// Default rerolls = 2; constants have no rolls, and advantage should select the best attempt (still 5)
-		auto adv = CreateAdvantageNode(c5 /*operand*/, /*rerolls*/ 2);
+		auto adv = CreateAdvantageNode(c5 /*operand*/, /*rerolls*/ CreateConstant(2));
 
 		DiceCalculator::Evaluation::CombinationAstVisitor visitor;
 		adv->Accept(visitor);
@@ -302,7 +302,7 @@ namespace DiceCalculator::Evaluation
 	{
 		// Build ADV(1d6) with default rerolls = 2
 		auto d1d6 = CreateDice(1, 6);
-		auto adv = CreateAdvantageNode(d1d6 /*operand*/, /*rerolls*/ 2);
+		auto adv = CreateAdvantageNode(d1d6 /*operand*/, /*rerolls*/ CreateConstant(2));
 
 		DiceCalculator::Evaluation::CombinationAstVisitor visitor;
 		adv->Accept(visitor);
@@ -342,7 +342,7 @@ namespace DiceCalculator::Evaluation
 		auto d1d2 = CreateDice(1, 2);
 		auto c1 = CreateConstant(1);
 		auto sum = CreateAdditionNode({ d1d3, d1d2, c1 });
-		auto adv = CreateAdvantageNode(sum /*operand*/, /*rerolls*/ 2);
+		auto adv = CreateAdvantageNode(sum /*operand*/, /*rerolls*/ CreateConstant(2));
 
 		DiceCalculator::Evaluation::CombinationAstVisitor visitor;
 		adv->Accept(visitor);

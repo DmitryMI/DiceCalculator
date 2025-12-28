@@ -59,9 +59,14 @@ namespace DiceCalculator::TestUtilities
 			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Subtraction>(), std::move(operands));
 		}
 
-		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateAdvantageNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> operand, int rerolls = 2) const
+		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateAdvantageNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> operand, std::shared_ptr<DiceCalculator::Expressions::DiceAst> rerolls = nullptr) const
 		{
-			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Advantage>(DiceCalculator::Operators::Advantage::Mode::Advantage, rerolls), std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ operand });
+			auto operands = std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ operand };
+			if(rerolls)
+			{
+				operands.push_back(rerolls);
+			}
+			return std::make_shared<DiceCalculator::Expressions::OperatorNode>(std::make_shared<DiceCalculator::Operators::Advantage>(DiceCalculator::Operators::Advantage::Mode::Advantage), operands);
 		}
 
 		std::shared_ptr<DiceCalculator::Expressions::OperatorNode> CreateDisadvantageNode(std::shared_ptr<DiceCalculator::Expressions::DiceAst> operand) const

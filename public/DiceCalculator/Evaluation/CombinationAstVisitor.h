@@ -10,6 +10,8 @@ namespace DiceCalculator::Evaluation
 	{
 	public:
 
+		constexpr static int MaxCombinationsThreshold = 10000000;
+
 		void Visit(const DiceCalculator::Expressions::ConstantNode& node) override;
 		void Visit(const DiceCalculator::Expressions::DiceNode& node) override;
 		void Visit(const DiceCalculator::Expressions::OperatorNode& node) override;

@@ -1,4 +1,5 @@
 #include "DiceCalculator/Operators/Advantage.h"
+#include "DiceCalculator/Expressions/ConstantNode.h"
 #include <stdexcept>
 #include <cmath>
 
@@ -6,20 +7,32 @@ namespace DiceCalculator::Operators
 {
 	bool Advantage::Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		return operands.size() == 1;
+		if (operands.size() == 1)
+		{
+			return true;
+		}
+		if(operands.size() == 2)
+		{
+			auto const& secondOperand = operands[1];
+			auto const* constNode = dynamic_cast<DiceCalculator::Expressions::ConstantNode*>(secondOperand.get());
+			return constNode;
+		}
+		return false;
 	}
 
 	int Advantage::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		if (!Validate(operands))
+		if (operands.size() > 2)
 		{
-			throw std::runtime_error("Advantage operator requires exactly one operand.");
+			throw std::runtime_error("Too many arguments for Advantage()");
 		}
 
+		int rerolls = GetRerolls(operands);
+		
 		std::vector<int> rolledValues;
 		std::vector<std::vector<Evaluation::RollAstVisitor::DiceRollRecord>> rollRecords;
 
-		for (int i = 0; i < m_Rerolls; ++i)
+		for (int i = 0; i < rerolls; ++i)
 		{
 			operands[0]->Accept(visitor);
 			int result = visitor.GetResult();
@@ -59,10 +72,12 @@ namespace DiceCalculator::Operators
 
 	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		if (!Validate(operands))
+		if (operands.size() > 2)
 		{
-			throw std::runtime_error("Advantage operator requires exactly one operand.");
+			throw std::runtime_error("Too many arguments for Advantage()");
 		}
+
+		int rerolls = GetRerolls(operands);
 
 		// Evaluate operand distribution (single-draw distribution)
 		operands[0]->Accept(visitor);
@@ -78,7 +93,7 @@ namespace DiceCalculator::Operators
 		// Use m_Rerolls (n draws) in formulas:
 		// P_max(k) = F(k)^n - F(k-1)^n
 		// P_min(k) = S(k)^n - S(k+1)^n
-		const double n = static_cast<double>(std::max(1, m_Rerolls));
+		const double n = static_cast<double>(std::max(1, rerolls));
 
 		if (m_Mode == Mode::Advantage)
 		{
@@ -115,10 +130,12 @@ namespace DiceCalculator::Operators
 
 	std::vector<Combination> Advantage::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		if (!Validate(operands))
+		if (operands.size() > 2)
 		{
-			throw std::runtime_error("Advantage operator requires exactly one operand.");
+			throw std::runtime_error("Too many arguments for Advantage()");
 		}
+
+		int rerolls = GetRerolls(operands);
 
 		// Get all combinations for a single roll of the operand.
 		operands[0]->Accept(visitor);
@@ -128,7 +145,7 @@ namespace DiceCalculator::Operators
 			return {};
 		}
 
-		const int n = std::max(1, m_Rerolls);
+		const int n = std::max(1, rerolls);
 		if (n == 1)
 		{
 			// Only one roll, just pass-through.
@@ -167,6 +184,10 @@ namespace DiceCalculator::Operators
 			out.TotalValue = chosen.TotalValue;
 			out.Rolls = chosen.Rolls; // ONLY record the chosen attempt's rolls
 			result.push_back(std::move(out));
+			if (result.size() > Evaluation::CombinationAstVisitor::MaxCombinationsThreshold)
+			{
+				throw std::runtime_error("Combination evaluation exceeded maximum allowed combinations.");
+			}
 		};
 
 		// Odometer iteration over m^n combinations
@@ -193,11 +214,31 @@ namespace DiceCalculator::Operators
 		return result;
 	}
 
+	int Advantage::GetRerolls(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		int rerolls = 2; // default
+		if (operands.size() == 2)
+		{
+			auto const& secondOperand = operands[1];
+			auto const* constNode = dynamic_cast<DiceCalculator::Expressions::ConstantNode*>(secondOperand.get());
+			if (!constNode)
+			{
+				throw std::runtime_error("Reroll count for Advantage() must be a constant.");
+			}
+			rerolls = constNode->GetValue();
+			if (rerolls < 1)
+			{
+				throw std::runtime_error("Reroll count for Advantage() must be at least 1.");
+			}
+		}
+		return rerolls;
+	}
+
 	bool Advantage::IsEqual(const DiceOperator& other) const
 	{
 		if (const auto* otherAdv = dynamic_cast<const Advantage*>(&other))
 		{
-			return m_Mode == otherAdv->m_Mode && m_Rerolls == otherAdv->m_Rerolls;
+			return m_Mode == otherAdv->m_Mode;
 		}
 		return false;
 	}

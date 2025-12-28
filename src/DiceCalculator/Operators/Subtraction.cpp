@@ -1,4 +1,5 @@
 #include "DiceCalculator/Operators/Subtraction.h"
+#include <stdexcept>
 
 namespace DiceCalculator::Operators
 {
@@ -102,6 +103,10 @@ namespace DiceCalculator::Operators
 					combined.Rolls = t.Rolls;
 					combined.Rolls.insert(combined.Rolls.end(), oc.Rolls.begin(), oc.Rolls.end());
 					newTotal.push_back(std::move(combined));
+					if (newTotal.size() > DiceCalculator::Evaluation::CombinationAstVisitor::MaxCombinationsThreshold)
+					{
+						throw std::runtime_error("Roll evaluation exceeded maximum allowed dice rolls.");
+					}
 				}
 			}
 

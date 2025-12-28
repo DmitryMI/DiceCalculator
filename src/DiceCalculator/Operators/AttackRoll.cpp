@@ -114,7 +114,13 @@ namespace DiceCalculator::Operators
 		}
 
 		std::vector<Combination> result;
-		result.reserve(static_cast<size_t>(leftCombinations.size()) * static_cast<size_t>(rightCombinations.size()));
+		size_t resultSizeEstimate = static_cast<size_t>(leftCombinations.size()) * static_cast<size_t>(rightCombinations.size());
+		if (resultSizeEstimate > Evaluation::CombinationAstVisitor::MaxCombinationsThreshold)
+		{
+			throw std::runtime_error("Combination evaluation exceeded maximum allowed combinations.");
+		}
+		result.reserve(resultSizeEstimate);
+		
 
 		for (const auto& lc : leftCombinations)
 		{

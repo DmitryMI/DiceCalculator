@@ -36,6 +36,10 @@ namespace DiceCalculator::Evaluation
 					expanded.Rolls = o.Rolls;
 					expanded.Rolls.push_back(Combination::Roll{ sides, face });
 					next.push_back(std::move(expanded));
+					if (next.size() > MaxCombinationsThreshold)
+					{
+						throw std::runtime_error("Combination evaluation exceeded maximum allowed combinations.");
+					}
 				}
 			}
 

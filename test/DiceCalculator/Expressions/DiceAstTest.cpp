@@ -84,11 +84,11 @@ namespace DiceCalculator::Expressions
     }
 
     // OperatorNode equality for stateful operator types (current implementation compares type only)
-    TEST_F(DiceAstTest, AdvantageOperatorTypeOnlyComparison)
+    TEST_F(DiceAstTest, AdvantageOperatorComparison)
     {
-        auto adv1 = CreateAdvantageNode(CreateDice(1, 20), 2);
-        auto adv2 = CreateAdvantageNode(CreateDice(1, 20), 3);
+        auto adv1 = CreateAdvantageNode(CreateDice(1, 20));
+        auto adv2 = CreateAdvantageNode(CreateDice(1, 20));
 
-        EXPECT_FALSE(adv1->IsEqual(*adv2));
+        EXPECT_TRUE(adv1->IsEqual(*adv2));
     }
 }

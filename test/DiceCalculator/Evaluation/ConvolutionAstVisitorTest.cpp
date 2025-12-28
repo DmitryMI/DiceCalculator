@@ -190,7 +190,7 @@ namespace DiceCalculator::Evaluation
 	TEST_F(DistributionVisitorTest, Advantage3OfSingleDice)
 	{
 		auto dice = CreateDice(1, 3);
-		auto advantageNode = CreateAdvantageNode(dice, 3);
+		auto advantageNode = CreateAdvantageNode(dice, CreateConstant(3));
 
 		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 

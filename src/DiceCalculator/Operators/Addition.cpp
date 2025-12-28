@@ -1,4 +1,5 @@
 #include "DiceCalculator/Operators/Addition.h"
+#include <stdexcept>
 
 namespace DiceCalculator::Operators
 {
@@ -66,6 +67,10 @@ namespace DiceCalculator::Operators
 					combined.Rolls = t.Rolls;
 					combined.Rolls.insert(combined.Rolls.end(), oc.Rolls.begin(), oc.Rolls.end());
 					newTotal.push_back(std::move(combined));
+					if (newTotal.size() > Evaluation::CombinationAstVisitor::MaxCombinationsThreshold)
+					{
+						throw std::runtime_error("Combination evaluation exceeded maximum allowed combinations.");
+					}
 				}
 			}
 
