@@ -1,6 +1,7 @@
 #include "DiceCalculator/Ui/Widgets/DiceExpressionBlock.h"
 #include "DiceCalculator/Ui/Widgets/DiceExpressionInput.h"
 #include "DiceCalculator/Controllers/ExpressionEvaluationController.h"
+#include "DiceCalculator/Ui/Widgets/DistributionGraph.h"
 #include <QPushButton>
 
 namespace DiceCalculator::Ui::Widgets
@@ -76,9 +77,36 @@ namespace DiceCalculator::Ui::Widgets
 
 	void DiceExpressionBlock::ClearOutput()
 	{
+		QLayout* scrollLayout = m_Ui.scrollAreaWidget->layout();
+		if (scrollLayout)
+		{
+			QLayoutItem* item;
+			while ((item = scrollLayout->takeAt(0)) != nullptr)
+			{
+				if (item->widget())
+				{
+					item->widget()->deleteLater();
+				}
+				delete item;
+			}
+		}
 	}
 
 	void DiceExpressionBlock::AddPlot(const QString& expression, const Distribution& distribution)
 	{
+		auto graph = new DistributionGraph(this);
+		graph->SetDistribution(distribution);
+		graph->SetExpression(expression);
+		graph->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+		QHBoxLayout* scrollLayout = dynamic_cast<QHBoxLayout*>(m_Ui.scrollAreaWidget->layout());
+		if (!scrollLayout)
+		{
+			scrollLayout = new QHBoxLayout(m_Ui.scrollAreaWidget);
+			m_Ui.scrollAreaWidget->setLayout(scrollLayout);
+		}
+
+		scrollLayout->addWidget(graph);
+		graph->Plot();
 	}
 }

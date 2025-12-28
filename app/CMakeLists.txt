@@ -2,7 +2,8 @@ set(AppName DiceCalculator.Gui)
 
 cmake_policy(SET CMP0111 NEW)
 
-find_package(PNG REQUIRED)
+add_subdirectory("QCustomPlot")
+
 find_package(Qt6
     COMPONENTS
         Core
@@ -10,6 +11,7 @@ find_package(Qt6
         Widgets
 )
 
+# find_package(QCustomPlot REQUIRED)
 find_package(spdlog REQUIRED)
 
 qt_standard_project_setup()
@@ -19,6 +21,7 @@ set(AppSources
 	"DiceCalculator/Ui/MainWindow.cpp"
     "DiceCalculator/Ui/Widgets/DiceExpressionInput.cpp"
     "DiceCalculator/Ui/Widgets/DiceExpressionBlock.cpp"
+    "DiceCalculator/Ui/Widgets/DistributionGraph.cpp"
     "DiceCalculator/Controllers/ExpressionEvaluationController.cpp"
 )
 
@@ -35,6 +38,7 @@ target_link_libraries(${AppName} PRIVATE
     Qt6::Gui
     Qt6::Widgets
 	spdlog::spdlog
+    QCustomPlot
 	DiceCalculator
 )
 
