@@ -24,7 +24,7 @@ namespace DiceCalculator::Operators
 		return false;
 	}
 
-	int AttackRoll::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int AttackRoll::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -83,14 +83,87 @@ namespace DiceCalculator::Operators
 		}
 	}
 
-	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution AttackRoll::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
 			throw std::runtime_error("AttackRoll operands are invalid.");
 		}
 
-		throw std::runtime_error("AttackRoll distribution evaluation is not implemented.");
+		throw std::runtime_error("Convolutional evaluation is not implemented for AttackRoll function.");
+	}
+
+
+	std::vector<Combination> AttackRoll::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		if (!Validate(operands))
+		{
+			throw std::runtime_error("AttackRoll operands are invalid.");
+		}
+
+		// Evaluate combinations for both operands
+		operands[0]->Accept(visitor);
+		auto leftCombinations = visitor.GetCombinations();
+
+		operands[1]->Accept(visitor);
+		auto rightCombinations = visitor.GetCombinations();
+
+		if (leftCombinations.empty() || rightCombinations.empty())
+		{
+			return {};
+		}
+
+		std::vector<Combination> result;
+		result.reserve(static_cast<size_t>(leftCombinations.size()) * static_cast<size_t>(rightCombinations.size()));
+
+		for (const auto& lc : leftCombinations)
+		{
+			// Find the single d20 roll in the left operand's rolls
+			int d20Value = 0;
+			bool foundD20 = false;
+			for (const auto& r : lc.Rolls)
+			{
+				if (r.Sides == 20)
+				{
+					d20Value = r.Value;
+					foundD20 = true;
+					break; // exactly one is guaranteed by Validate
+				}
+			}
+			if (!foundD20)
+			{
+				// Should not happen due to Validate, but guard anyway
+				throw std::runtime_error("AttackRoll left operand does not contain a d20 roll.");
+			}
+
+			for (const auto& rc : rightCombinations)
+			{
+				int outcome = 0;
+
+				// Critical miss/hit override normal comparison
+				if (d20Value <= CriticalMissThreshold)
+				{
+					outcome = 0;
+				}
+				else if (d20Value >= CriticalHitThreshold)
+				{
+					outcome = 1;
+				}
+				else
+				{
+					outcome = (lc.TotalValue >= rc.TotalValue) ? 1 : 0;
+				}
+
+				Combination combined;
+				combined.TotalValue = outcome;
+				combined.Rolls = lc.Rolls;
+				combined.Rolls.insert(combined.Rolls.end(), rc.Rolls.begin(), rc.Rolls.end());
+
+				result.push_back(std::move(combined));
+			}
+		}
+
+		return result;
 	}
 
 	bool AttackRoll::IsEqual(const DiceOperator& other) const
@@ -98,11 +171,11 @@ namespace DiceCalculator::Operators
 		return dynamic_cast<const AttackRoll*>(&other) != nullptr;
 	}
 
-	std::vector<OperatorRegistry::Entry> AttackRoll::Register()
+	std::vector<RegistryEntry> AttackRoll::Register()
 	{
-		registered = true;
+
 		return {
-			{ OperatorRegistry::Entry{"AttackRoll", OperatorRegistry::Arity::Function, []() { return std::make_shared<AttackRoll>(); }} }
+			{ RegistryEntry{"AttackRoll", Arity::Function, []() { return std::make_shared<AttackRoll>(); }} }
 		};
 	}
 }

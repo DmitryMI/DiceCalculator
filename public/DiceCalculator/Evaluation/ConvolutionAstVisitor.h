@@ -5,7 +5,7 @@
 
 namespace DiceCalculator::Evaluation
 {
-	class DistributionAstVisitor : public Evaluation::DiceAstVisitor
+	class ConvolutionAstVisitor : public Evaluation::DiceAstVisitor
 	{
 	public:
 		void Visit(const DiceCalculator::Expressions::ConstantNode& node) override;

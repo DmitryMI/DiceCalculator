@@ -8,7 +8,7 @@ namespace DiceCalculator::Operators
 		return operands.size() == 2;
 	}
 
-	int Comparison::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Comparison::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -47,7 +47,7 @@ namespace DiceCalculator::Operators
 	}
 
 
-	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Comparison::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -103,6 +103,71 @@ namespace DiceCalculator::Operators
 				int outcomeValue = comparisonResult ? 1 : 0;
 				double outcomeProb = prob1 * prob2;
 				result.AddOutcome(outcomeValue, outcomeProb);
+			}
+		}
+
+		return result;
+	}
+
+
+	std::vector<Combination> Comparison::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		if (!Validate(operands))
+		{
+			throw std::runtime_error("Comparison operands are invalid.");
+		}
+
+		// Evaluate combinations for both operands
+		operands[0]->Accept(visitor);
+		auto leftCombinations = visitor.GetCombinations();
+
+		operands[1]->Accept(visitor);
+		auto rightCombinations = visitor.GetCombinations();
+
+		if (leftCombinations.empty() || rightCombinations.empty())
+		{
+			// If any side has no combinations, result is empty set
+			return {};
+		}
+
+		std::vector<Combination> result;
+		result.reserve(static_cast<size_t>(leftCombinations.size()) * static_cast<size_t>(rightCombinations.size()));
+
+		for (const auto& lc : leftCombinations)
+		{
+			for (const auto& rc : rightCombinations)
+			{
+				bool comparisonResult = false;
+				switch (m_Mode)
+				{
+					case Mode::LessThan:
+						comparisonResult = (lc.TotalValue < rc.TotalValue);
+						break;
+					case Mode::LessThanOrEqual:
+						comparisonResult = (lc.TotalValue <= rc.TotalValue);
+						break;
+					case Mode::Equal:
+						comparisonResult = (lc.TotalValue == rc.TotalValue);
+						break;
+					case Mode::NotEqual:
+						comparisonResult = (lc.TotalValue != rc.TotalValue);
+						break;
+					case Mode::GreaterThanOrEqual:
+						comparisonResult = (lc.TotalValue >= rc.TotalValue);
+						break;
+					case Mode::GreaterThan:
+						comparisonResult = (lc.TotalValue > rc.TotalValue);
+						break;
+					default:
+						throw std::runtime_error("Invalid comparison mode.");
+				}
+
+				Combination combined;
+				combined.TotalValue = comparisonResult ? 1 : 0;
+				combined.Rolls = lc.Rolls;
+				combined.Rolls.insert(combined.Rolls.end(), rc.Rolls.begin(), rc.Rolls.end());
+
+				result.push_back(std::move(combined));
 			}
 		}
 

@@ -9,7 +9,7 @@ namespace DiceCalculator::Operators
 		return operands.size() == 1;
 	}
 
-	int Advantage::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Advantage::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -57,7 +57,7 @@ namespace DiceCalculator::Operators
 		return rolledValues[bestIndex];
 	}
 
-	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Advantage::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (!Validate(operands))
 		{
@@ -113,6 +113,86 @@ namespace DiceCalculator::Operators
 		return result;
 	}
 
+	std::vector<Combination> Advantage::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	{
+		if (!Validate(operands))
+		{
+			throw std::runtime_error("Advantage operator requires exactly one operand.");
+		}
+
+		// Get all combinations for a single roll of the operand.
+		operands[0]->Accept(visitor);
+		const auto& baseCombos = visitor.GetCombinations();
+		if (baseCombos.empty())
+		{
+			return {};
+		}
+
+		const int n = std::max(1, m_Rerolls);
+		if (n == 1)
+		{
+			// Only one roll, just pass-through.
+			return baseCombos;
+		}
+
+		// Build cartesian products of 'n' independent rolls of the same operand.
+		// For each product, select the best attempt according to mode and record ONLY that attempt's rolls.
+		std::vector<Combination> result;
+		// total count = baseCombos.size() ^ n
+		// We iterate using an index vector like mixed-radix odometer.
+		const size_t m = baseCombos.size();
+		std::vector<size_t> indices(static_cast<size_t>(n), 0);
+
+		// Helper to push current product's selected attempt
+		auto emitCurrent = [&]()
+		{
+			// Find best attempt index among current indices
+			size_t bestIdxInProduct = 0;
+			for (size_t i = 1; i < indices.size(); ++i)
+			{
+				const auto& cur = baseCombos[indices[i]].TotalValue;
+				const auto& best = baseCombos[indices[bestIdxInProduct]].TotalValue;
+				if (m_Mode == Mode::Advantage)
+				{
+					if (cur > best) bestIdxInProduct = i;
+				}
+				else
+				{
+					if (cur < best) bestIdxInProduct = i;
+				}
+			}
+
+			const auto& chosen = baseCombos[indices[bestIdxInProduct]];
+			Combination out;
+			out.TotalValue = chosen.TotalValue;
+			out.Rolls = chosen.Rolls; // ONLY record the chosen attempt's rolls
+			result.push_back(std::move(out));
+		};
+
+		// Odometer iteration over m^n combinations
+		bool done = false;
+		while (!done)
+		{
+			emitCurrent();
+
+			// increment indices
+			for (size_t pos = 0; pos < indices.size(); ++pos)
+			{
+				if (++indices[pos] < m)
+				{
+					break; // carry resolved
+				}
+				indices[pos] = 0; // reset and carry to next
+				if (pos + 1 == indices.size())
+				{
+					done = true;
+				}
+			}
+		}
+
+		return result;
+	}
+
 	bool Advantage::IsEqual(const DiceOperator& other) const
 	{
 		if (const auto* otherAdv = dynamic_cast<const Advantage*>(&other))
@@ -122,12 +202,11 @@ namespace DiceCalculator::Operators
 		return false;
 	}
 
-	std::vector<OperatorRegistry::Entry> Advantage::Register()
+	std::vector<RegistryEntry> Advantage::Register()
 	{
-		registered = true;
 		return {
-			{ OperatorRegistry::Entry{"ADV", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
-			{ OperatorRegistry::Entry{"DIS", OperatorRegistry::Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
+			{ RegistryEntry{"ADV", Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Advantage); }} },
+			{ RegistryEntry{"DIS", Arity::Function, []() { return std::make_shared<Advantage>(Advantage::Mode::Disadvantage); }} }
 		};
 	}
 }

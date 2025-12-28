@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
+#include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/Expressions/DiceNode.h"
 #include "DiceCalculator/Expressions/ConstantNode.h"
 #include "DiceCalculator/Expressions/OperatorNode.h"
@@ -8,12 +8,12 @@
 
 namespace DiceCalculator::Evaluation
 {
-	void DistributionAstVisitor::Visit(const Expressions::ConstantNode& node)
+	void ConvolutionAstVisitor::Visit(const Expressions::ConstantNode& node)
 	{
 		m_Distribution = { {node.GetValue(), 1.0} };
 	}
 
-	void DistributionAstVisitor::Visit(const Expressions::DiceNode& node)
+	void ConvolutionAstVisitor::Visit(const Expressions::DiceNode& node)
 	{
 		int rolls = node.GetRolls();
 		int sides = node.GetSides();
@@ -65,7 +65,7 @@ namespace DiceCalculator::Evaluation
 		}
 	}
 
-	void DistributionAstVisitor::Visit(const Expressions::OperatorNode& node)
+	void ConvolutionAstVisitor::Visit(const Expressions::OperatorNode& node)
 	{
 		m_Distribution = node.GetOperator()->Evaluate(*this, node.GetOperands());
 	}

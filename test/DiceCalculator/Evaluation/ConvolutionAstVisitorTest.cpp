@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
+#include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/TestUtilities.h"
 #include "DiceCalculator/Operators/Subtraction.h"
 
@@ -16,7 +16,7 @@ namespace DiceCalculator::Evaluation
 	{
 		// Arrange
 		auto node = CreateConstant(42);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		// Act
 		node->Accept(visitor);
@@ -31,7 +31,7 @@ namespace DiceCalculator::Evaluation
 	{
 		// Arrange
 		auto node = CreateDice(1, 6);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		// Act
 		node->Accept(visitor);
@@ -51,7 +51,7 @@ namespace DiceCalculator::Evaluation
 	{
 		// Arrange
 		auto node = CreateDice(2, 6);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		// Act
 		node->Accept(visitor);
@@ -76,7 +76,7 @@ namespace DiceCalculator::Evaluation
 	{
 		// Arrange: 3d3
 		auto node = CreateDice(3, 3);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		// Act
 		node->Accept(visitor);
@@ -100,7 +100,7 @@ namespace DiceCalculator::Evaluation
 		auto node2 = CreateConstant(4);
 		auto node3 = CreateConstant(5);
 		auto additionNode = CreateAdditionNode({ node1, node2, node3 });
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		additionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -114,7 +114,7 @@ namespace DiceCalculator::Evaluation
 		auto node1 = CreateDice(1, 6);
 		auto node2 = CreateConstant(4);
 		auto additionNode = CreateAdditionNode({ node1, node2 });
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		additionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -135,7 +135,7 @@ namespace DiceCalculator::Evaluation
 		auto additionNode = CreateAdditionNode({ dice1, dice2 });
 
 		auto twoDices = CreateDice(2, 6);
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		additionNode->Accept(visitor);
 		const auto& dist1 = visitor.GetDistribution();
@@ -162,7 +162,7 @@ namespace DiceCalculator::Evaluation
 		auto node = CreateConstant(33);
 		auto advantageNode = CreateAdvantageNode(node);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -176,7 +176,7 @@ namespace DiceCalculator::Evaluation
 		auto dice = CreateDice(1, 3);
 		auto advantageNode = CreateAdvantageNode(dice);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -192,7 +192,7 @@ namespace DiceCalculator::Evaluation
 		auto dice = CreateDice(1, 3);
 		auto advantageNode = CreateAdvantageNode(dice, 3);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -210,7 +210,7 @@ namespace DiceCalculator::Evaluation
 		auto additionNode = CreateAdditionNode({ dice, nodeConst });
 		auto advantageNode = CreateAdvantageNode(additionNode);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -226,7 +226,7 @@ namespace DiceCalculator::Evaluation
 		auto dice = CreateDice(2, 2);
 		auto advantageNode = CreateAdvantageNode(dice);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -242,7 +242,7 @@ namespace DiceCalculator::Evaluation
 		auto dice = CreateDice(1, 3);
 		auto advantageNode = CreateDisadvantageNode(dice);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -258,7 +258,7 @@ namespace DiceCalculator::Evaluation
 		auto dice = CreateDice(2, 2);
 		auto advantageNode = CreateDisadvantageNode(dice);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		advantageNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -280,7 +280,7 @@ namespace DiceCalculator::Evaluation
 			std::make_shared<DiceCalculator::Operators::Subtraction>(),
 			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ node1, node2, node3 });
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		subtractionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -297,7 +297,7 @@ namespace DiceCalculator::Evaluation
 			std::make_shared<DiceCalculator::Operators::Subtraction>(),
 			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ node1, node2 });
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		subtractionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -319,7 +319,7 @@ namespace DiceCalculator::Evaluation
 			std::make_shared<DiceCalculator::Operators::Subtraction>(),
 			std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>>{ dice1, dice2 });
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		subtractionNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -346,7 +346,7 @@ namespace DiceCalculator::Evaluation
 		auto lessNode = CreateLessThanNode(node1, node2);
 		auto greaterNode = CreateGreaterThanNode(node1, node2);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		lessNode->Accept(visitor);
 		const auto& dist1 = visitor.GetDistribution();
@@ -365,7 +365,7 @@ namespace DiceCalculator::Evaluation
 		auto node2 = CreateDice(1, 3);
 		auto lessNode = CreateLessThanNode(node1, node2);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 
 		lessNode->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
@@ -383,7 +383,7 @@ namespace DiceCalculator::Evaluation
 		auto armorClass = CreateConstant(10);
 		auto attackRoll = CreateAttackRollNode(node1, armorClass);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 		attackRoll->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 
@@ -398,7 +398,7 @@ namespace DiceCalculator::Evaluation
 		auto armorClass = CreateConstant(30);
 		auto attackRoll = CreateAttackRollNode(node1, armorClass);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 		attackRoll->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 
@@ -413,7 +413,7 @@ namespace DiceCalculator::Evaluation
 		auto armorClass = CreateConstant(1);
 		auto attackRoll = CreateAttackRollNode(node1, armorClass);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 		attackRoll->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 
@@ -428,7 +428,7 @@ namespace DiceCalculator::Evaluation
 		auto armorClass = CreateConstant(1);
 		auto attackRoll = CreateAttackRollNode(CreateAdvantageNode(node1), armorClass);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 		attackRoll->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 
@@ -443,7 +443,7 @@ namespace DiceCalculator::Evaluation
 		auto armorClass = CreateConstant(30);
 		auto attackRoll = CreateAttackRollNode(CreateDisadvantageNode(node1), armorClass);
 
-		DiceCalculator::Evaluation::DistributionAstVisitor visitor;
+		DiceCalculator::Evaluation::ConvolutionAstVisitor visitor;
 		attackRoll->Accept(visitor);
 		const auto& dist = visitor.GetDistribution();
 

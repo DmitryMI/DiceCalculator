@@ -4,6 +4,7 @@
 #include <utility>
 #include <algorithm>
 #include <initializer_list>
+#include "DiceCalculator/Combination.h"
 
 namespace DiceCalculator
 {
@@ -104,6 +105,23 @@ namespace DiceCalculator
 		void Clear() noexcept { m_Data.clear(); }
 		size_t Size() const noexcept { return m_Data.size(); }
 		void Reserve(size_t n) { m_Data.reserve(n); }
+
+		// Create a normalized distribution from a list of combinations,
+		// assuming each combination is equally likely.
+		static Distribution FromCombinations(const std::vector<Combination>& combinations)
+		{
+			Distribution d;
+			if (combinations.empty())
+				return d;
+
+			for (const auto& c : combinations)
+			{
+				// Count occurrences of each total value; normalization will convert counts to probabilities.
+				d.AddOutcome(c.TotalValue, 1.0);
+			}
+			d.Normalize();
+			return d;
+		}
 
 	private:
 		// Sorted vector of (value, probability) acting as a flat map.

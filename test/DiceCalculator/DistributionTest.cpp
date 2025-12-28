@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "DiceCalculator/Distribution.h"
+#include "DiceCalculator/Combination.h"
 
 namespace DiceCalculator::Expressions
 {
@@ -73,5 +74,35 @@ namespace DiceCalculator::Expressions
 
 		d.Clear();
 		EXPECT_EQ(d.Size(), 0u);
+	}
+
+	TEST(DistributionTest, FromCombinationsAggregatesTotalsAndNormalizes)
+	{
+		// Prepare combinations: totals [4, 5, 5, 7]
+		// Rolls content is irrelevant for distribution; include some to ensure it's ignored.
+		std::vector<Combination> combos;
+		combos.push_back(Combination{ 4, { Combination::Roll{ 6, 4 } } });
+		combos.push_back(Combination{ 5, { Combination::Roll{ 6, 5 } } });
+		combos.push_back(Combination{ 5, { Combination::Roll{ 3, 2 }, Combination::Roll{ 3, 3 } } });
+		combos.push_back(Combination{ 7, { Combination::Roll{ 6, 4 }, Combination::Roll{ 6, 3 } } });
+
+		Distribution d = Distribution::FromCombinations(combos);
+
+		// Expect values 4,5,7 with probabilities 1/4, 2/4, 1/4 respectively.
+		ASSERT_EQ(d.Size(), 3u);
+
+		const auto& data = d.GetData();
+		ASSERT_EQ(data.size(), 3u);
+		EXPECT_EQ(data[0].first, 4);
+		EXPECT_NEAR(data[0].second, 1.0 / 4.0, 1e-12);
+
+		EXPECT_EQ(data[1].first, 5);
+		EXPECT_NEAR(data[1].second, 2.0 / 4.0, 1e-12);
+
+		EXPECT_EQ(data[2].first, 7);
+		EXPECT_NEAR(data[2].second, 1.0 / 4.0, 1e-12);
+
+		// Sum to 1
+		EXPECT_NEAR(data[0].second + data[1].second + data[2].second, 1.0, 1e-12);
 	}
 }

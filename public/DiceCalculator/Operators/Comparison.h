@@ -3,8 +3,9 @@
 #include "DiceCalculator/Operators/DiceOperator.h"
 #include "DiceCalculator/Expressions/DiceAst.h"
 #include "DiceCalculator/Evaluation/RollAstVisitor.h"
-#include "DiceCalculator/Evaluation/DistributionAstVisitor.h"
+#include "DiceCalculator/Evaluation/ConvolutionAstVisitor.h"
 #include "DiceCalculator/Expressions/DiceNode.h"
+#include "DiceCalculator/Evaluation/CombinationAstVisitor.h"
 
 namespace DiceCalculator::Operators
 {
@@ -24,8 +25,9 @@ namespace DiceCalculator::Operators
 		Comparison(Mode mode) : m_Mode(mode){}
 
 		bool Validate(std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
-		int Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
-		Distribution Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		int Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		std::vector<Combination> Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
+		Distribution Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const override;
 		bool IsEqual(const DiceOperator& other) const override;
 		Mode GetMode() const { return m_Mode; }
 	private:

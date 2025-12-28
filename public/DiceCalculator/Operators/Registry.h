@@ -7,6 +7,11 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include "DiceCalculator/Operators/IRegistry.h"
+#include "DiceCalculator/Operators/Addition.h"
+#include "DiceCalculator/Operators/Subtraction.h"
+#include "DiceCalculator/Operators/Advantage.h"
+#include "DiceCalculator/Operators/AttackRoll.h"
 
 namespace DiceCalculator::Expressions
 {
@@ -17,26 +22,10 @@ namespace DiceCalculator::Operators
 {
     class DiceOperator;
 
-	class OperatorRegistry
+	class Registry : public IRegistry
 	{
     public:
-        using Factory = std::function<std::shared_ptr<DiceOperator>()>;
-
-        enum class Arity
-        {
-			Zero = 0,
-            Unary = 1,
-            Binary = 2,
-            Function = 3
-        };
-
-        struct Entry
-        {
-            std::string Name;
-            Arity Arity;
-            std::function<std::shared_ptr<DiceOperator>()> FactoryFunc;
-        };
-
+        
         // Composite key combining name + arity
         struct Key
         {
@@ -60,14 +49,24 @@ namespace DiceCalculator::Operators
             }
         };
 
-        static OperatorRegistry& Instance()
+        Registry()
         {
-            static OperatorRegistry instance;
-            return instance;
+			Register(Addition::Register());
+			Register(Subtraction::Register());
+			Register(Advantage::Register());
+			Register(AttackRoll::Register());
+        }
+
+        void Register(const std::vector<RegistryEntry>& entries)
+        {
+			for (const auto& entry : entries)
+            {
+                Register(entry);
+            }
         }
 
         // Register by entry (uses composite key)
-        void Register(Entry entry)
+        void Register(RegistryEntry entry) override
         {
             Key key{ entry.Name, entry.Arity };
             auto [it, inserted] = m_Registry.emplace(std::move(key), std::move(entry));
@@ -89,7 +88,7 @@ namespace DiceCalculator::Operators
             return it->second.FactoryFunc();
         }
 
-        const Entry& GetEntry(std::string_view name, Arity arity) const
+        const RegistryEntry& GetEntry(std::string_view name, Arity arity) const
         {
             Key key{ std::string(name), arity };
             auto it = m_Registry.find(key);
@@ -100,12 +99,12 @@ namespace DiceCalculator::Operators
             return it->second;
 		}
 
-        std::vector<Entry> GetUnaryOperators() const
+        std::vector<RegistryEntry> GetOperatorsByArity(Arity arity) const
         {
-            std::vector<Entry> result;
+            std::vector<RegistryEntry> result;
             for (const auto& [key, entry] : m_Registry)
             {
-                if (key.Arity == Arity::Unary)
+                if (key.Arity == arity)
                 {
                     result.push_back(entry);
                 }
@@ -113,53 +112,8 @@ namespace DiceCalculator::Operators
             return result;
 		}
 
-        std::vector<Entry> GetBinaryOperators() const
-        {
-            std::vector<Entry> result;
-            for (const auto& [key, entry] : m_Registry)
-            {
-                if (key.Arity == Arity::Binary)
-                {
-                    result.push_back(entry);
-                }
-            }
-            return result;
-        }
-
-        std::vector<Entry> GetFunctions() const
-        {
-            std::vector<Entry> result;
-            for (const auto& [key, entry] : m_Registry)
-            {
-                if (key.Arity == Arity::Function)
-                {
-                    result.push_back(entry);
-                }
-            }
-            return result;
-        }
-
     private:
-        std::unordered_map<Key, Entry, KeyHash> m_Registry;
+        std::unordered_map<Key, RegistryEntry, KeyHash> m_Registry;
 	};
-
-    template <typename Derived>
-    struct AutoRegister
-    {
-        static bool registered;
-        static std::vector<OperatorRegistry::Entry> Register();
-    };
-
-    template<typename Derived>
-    bool AutoRegister<Derived>::registered = [] {
-        auto entries = Derived::Register();
-        for (const auto& entry : entries)
-        {
-            OperatorRegistry::Instance().Register(
-                entry
-            );
-        }
-        return true;
-        }();
 
 }

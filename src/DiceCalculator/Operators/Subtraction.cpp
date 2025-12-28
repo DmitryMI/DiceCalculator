@@ -8,7 +8,7 @@ namespace DiceCalculator::Operators
 		return operands.size() >= 1;
 	}
 
-	int Subtraction::Roll(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	int Subtraction::Evaluate(DiceCalculator::Evaluation::RollAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (operands.empty())
 		{
@@ -34,7 +34,7 @@ namespace DiceCalculator::Operators
 		return total;
 	}
 
-	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::DistributionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
+	Distribution Subtraction::Evaluate(DiceCalculator::Evaluation::ConvolutionAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
 		if (operands.empty())
 		{
@@ -73,11 +73,48 @@ namespace DiceCalculator::Operators
 		return dynamic_cast<const Subtraction*>(&other) != nullptr;
 	}
 
-	std::vector<OperatorRegistry::Entry> Subtraction::Register()
+	std::vector<Combination> Subtraction::Evaluate(DiceCalculator::Evaluation::CombinationAstVisitor& visitor, std::vector<std::shared_ptr<DiceCalculator::Expressions::DiceAst>> operands) const
 	{
-		registered = true;
+		if (operands.empty())
+		{
+			return {};
+		}
+
+		// Start with combinations of the first operand
+		operands[0]->Accept(visitor);
+		std::vector<Combination> total = visitor.GetCombinations();
+
+		// Subtract subsequent operands' totals, concatenating their rolls
+		for (size_t i = 1; i < operands.size(); ++i)
+		{
+			operands[i]->Accept(visitor);
+			const auto& opCombinations = visitor.GetCombinations();
+
+			std::vector<Combination> newTotal;
+			newTotal.reserve(static_cast<size_t>(total.size()) * static_cast<size_t>(opCombinations.size()));
+
+			for (const auto& t : total)
+			{
+				for (const auto& oc : opCombinations)
+				{
+					Combination combined;
+					combined.TotalValue = t.TotalValue - oc.TotalValue;
+					combined.Rolls = t.Rolls;
+					combined.Rolls.insert(combined.Rolls.end(), oc.Rolls.begin(), oc.Rolls.end());
+					newTotal.push_back(std::move(combined));
+				}
+			}
+
+			total = std::move(newTotal);
+		}
+
+		return total;
+	}
+
+	std::vector<RegistryEntry> Subtraction::Register()
+	{
 		return {
-			{ OperatorRegistry::Entry{"-", OperatorRegistry::Arity::Binary, []() { return std::make_shared<Subtraction>(); }} }
+			{ RegistryEntry{"-", Arity::Binary, []() { return std::make_shared<Subtraction>(); }} }
 		};
 	}
 }
