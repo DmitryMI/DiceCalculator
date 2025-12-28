@@ -24,6 +24,20 @@ namespace DiceCalculator::Parsing
 		EXPECT_TRUE(ast->IsEqual(*expected)) << "Parsed AST did not match expected for input: " << input;
 	}
 
+	// 1d8 + 1d20 > 10
+	TEST_F(BoostSpiritParserTest, ParseAdditionAndComparison)
+	{
+		// ASSERT_TRUE(DiceCalculator::Operators::Advantage::registered);
+
+		BoostSpiritParser parser;
+		const std::string input = "1d8 + 1d20 > 10";
+		auto ast = parser.Parse(input);
+		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
+
+		auto expected = CreateGreaterThanNode(CreateAdditionNode({ CreateDice(1, 8), CreateDice(1, 20) }), CreateConstant(10));
+		EXPECT_TRUE(ast->IsEqual(*expected)) << "Parsed AST did not match expected for input: " << input;
+	}
+
 	TEST_F(BoostSpiritParserTest, ParseExpressionOuterAdvantage)
 	{
 		BoostSpiritParser parser;

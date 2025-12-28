@@ -19,6 +19,7 @@ set(AppSources
 	"DiceCalculator/Ui/MainWindow.cpp"
     "DiceCalculator/Ui/Widgets/DiceExpressionInput.cpp"
     "DiceCalculator/Ui/Widgets/DiceExpressionBlock.cpp"
+    "DiceCalculator/Controllers/ExpressionEvaluationController.cpp"
 )
 
 # qt_add_resources(AppSources "CityDraft/Resources.qrc")

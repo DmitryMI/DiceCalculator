@@ -161,7 +161,9 @@ namespace DiceCalculator::Parsing
 
 		// additive: left-associative chain of registered binary operators
 		qi::symbols<char, std::string> binaryOps;
-		for (const auto& entry : Operators::OperatorRegistry::Instance().GetBinaryOperators())
+		auto binaryOperatorEntries = Operators::OperatorRegistry::Instance().GetBinaryOperators();
+		assert(binaryOperatorEntries.size() > 0 && "No binary operators registered.");
+		for (const auto& entry : binaryOperatorEntries)
 		{
 			// Register operator symbol (e.g., "+", "-") mapped to its name
 			binaryOps.add(entry.Name, entry.Name);

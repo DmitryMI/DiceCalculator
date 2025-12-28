@@ -1,11 +1,14 @@
 #include "DiceCalculator/Ui/MainWindow.h"
 #include "DiceCalculator/Logging/LogManager.h"
 #include "DiceCalculator/Ui/Widgets/DiceExpressionBlock.h"
+#include "DiceCalculator/Controllers/ExpressionEvaluationController.h"
+#include <qboxlayout.h>
 
 namespace DiceCalculator::Ui
 {
 
-	MainWindow::MainWindow(QWidget* parent) :
+	MainWindow::MainWindow(std::shared_ptr<Parsing::IParser> parser, QWidget* parent) :
+		m_Parser(std::move(parser)),
 		QMainWindow(parent)
 	{
 		m_Logger = DiceCalculator::Logging::LogManager::CreateLogger("MainWindow");
@@ -43,7 +46,8 @@ namespace DiceCalculator::Ui
 
 		scrollAreaWidgetLayout->removeItem(m_ScrollAreaSpacerItem);
 
-		auto* diceExpressionBlock = new Widgets::DiceExpressionBlock(m_Ui.scrollAreaWidgetContents);
+		auto* controller = new Controllers::ExpressionEvaluationController(m_Parser);
+		auto* diceExpressionBlock = new Widgets::DiceExpressionBlock(controller, m_Ui.scrollAreaWidgetContents);
 		diceExpressionBlock->setSizePolicy(m_Ui.scrollAreaWidget->sizePolicy());
 		diceExpressionBlock->setMinimumSize(m_Ui.scrollAreaWidget->minimumSize());
 

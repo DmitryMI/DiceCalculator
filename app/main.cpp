@@ -5,6 +5,7 @@
 #include "DiceCalculator/Logging/LogManager.h"
 #include "spdlog/spdlog.h"
 #include <QStandardPaths>
+#include "DiceCalculator/Parsing/BoostSpiritParser.h"
 
 using namespace DiceCalculator;
 
@@ -55,7 +56,7 @@ int main(int argc, char* argv[])
 
 	spdlog::info("DiceCalculator started");
 	
-	DiceCalculator::Ui::MainWindow mainWindow;
+	DiceCalculator::Ui::MainWindow mainWindow(std::make_shared<Parsing::BoostSpiritParser>());
 	mainWindow.show();
 
 	return app.exec();

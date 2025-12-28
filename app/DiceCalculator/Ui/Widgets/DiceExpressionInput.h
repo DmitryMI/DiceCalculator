@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include "ui_DiceExpressionInput.h"
+#include "DiceCalculator/Controllers/ExpressionEvaluationController.h"
 
 namespace DiceCalculator::Ui::Widgets
 {
@@ -10,38 +11,28 @@ namespace DiceCalculator::Ui::Widgets
 		Q_OBJECT
 
 	public:
-		enum class MessageType
-		{
-			Info,
-			Warning,
-			Error
-		};
-
-		enum class EvaluationMethod
-		{
-			Auto,
-			Convolution,
-			Combinatorial,
-			Roll,
-		};
+		
 
 		explicit DiceExpressionInput(QWidget* parent = nullptr);
 		~DiceExpressionInput() override;
 
 		[[nodiscard]] QString GetExpression() const;
+		Controllers::ExpressionEvaluationController::EvaluationMethod GetExpressionEvaluationMethod() const;
+
 		void SetExpression(const QString& value);
 
 		void ClearMessages();
-		void AppendMessage(const QString& message, MessageType type);
+		void AppendMessage(const QString& message, Controllers::ExpressionEvaluationController::MessageType type);
 
-		EvaluationMethod GetEvaluationMethod() const
+		Controllers::ExpressionEvaluationController::EvaluationMethod GetEvaluationMethod() const
 		{
-			return static_cast<EvaluationMethod>(m_Ui.evaluationMethodBox->currentData().toInt());
+			return static_cast<Controllers::ExpressionEvaluationController::EvaluationMethod>(m_Ui.evaluationMethodBox->currentData().toInt());
 		}
+
 
 	signals:
 		void ExpressionChanged(const QString& value);
-		void ExpressionEvaluationRequested(const QString& expression);
+		void ExpressionEvaluationRequested(const QString& expression, Controllers::ExpressionEvaluationController::EvaluationMethod method);
 
 	protected:
 		void changeEvent(QEvent* event) override;
