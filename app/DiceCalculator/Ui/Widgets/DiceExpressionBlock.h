@@ -4,6 +4,7 @@
 #include <memory>
 #include "ui_DiceExpressionBlock.h"
 #include "DiceCalculator/Distribution.h"
+#include <QSpacerItem>
 
 namespace DiceCalculator::Controllers
 {
@@ -30,6 +31,7 @@ namespace DiceCalculator::Ui::Widgets
 
 	private:
 		Ui_DiceExpressionBlock m_Ui;
+		QSpacerItem* m_ScrollAreaSpacerItem{ nullptr };
 		DiceExpressionInput* m_DiceExpressionInput{ nullptr };
 		DiceCalculator::Controllers::ExpressionEvaluationController* m_Controller;
 

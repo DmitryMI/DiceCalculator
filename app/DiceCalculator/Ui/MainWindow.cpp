@@ -19,6 +19,7 @@ namespace DiceCalculator::Ui
 		m_Ui.scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 		AddExpressionBlock();
+		AddExpressionBlock();
 
 		connect(m_Ui.actionAdd_Expression, &QAction::triggered, this, &MainWindow::AddExpressionBlock);
 		
@@ -39,12 +40,10 @@ namespace DiceCalculator::Ui
 			m_Ui.scrollAreaWidget->setLayout(scrollAreaWidgetLayout);
 		}
 
-		if (!m_ScrollAreaSpacerItem)
+		if (m_ScrollAreaSpacerItem)
 		{
-			m_ScrollAreaSpacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+			scrollAreaWidgetLayout->removeItem(m_ScrollAreaSpacerItem);
 		}
-
-		scrollAreaWidgetLayout->removeItem(m_ScrollAreaSpacerItem);
 
 		auto* controller = new Controllers::ExpressionEvaluationController(m_Parser);
 		auto* diceExpressionBlock = new Widgets::DiceExpressionBlock(controller, m_Ui.scrollAreaWidgetContents);
@@ -53,6 +52,7 @@ namespace DiceCalculator::Ui
 
 		scrollAreaWidgetLayout->addWidget(diceExpressionBlock);
 
+		m_ScrollAreaSpacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 		scrollAreaWidgetLayout->addItem(m_ScrollAreaSpacerItem);
 
 		connect(diceExpressionBlock, &Widgets::DiceExpressionBlock::RemoveRequested, this, &MainWindow::RemoveExpressionBlock);

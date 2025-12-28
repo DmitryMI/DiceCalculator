@@ -25,11 +25,13 @@ namespace DiceCalculator::Controllers
 				throw std::runtime_error("Parser produced empty AST.");
 			}
 
-			emit ParsingFinished("Parsing OK", MessageType::Info);
+			emit ParsingMessage(expression, "Parsing OK", MessageType::Info);
+			emit ParsingFinished(expression);
 		}
 		catch (const std::runtime_error& error)
 		{
-			emit ParsingFinished(QString::fromStdString(error.what()), MessageType::Error);
+			emit ParsingMessage(expression, QString::fromStdString(error.what()), MessageType::Error);
+			emit ParsingFinished(expression);
 		}
 	}
 
@@ -43,20 +45,22 @@ namespace DiceCalculator::Controllers
 			{
 				throw std::runtime_error("Parser produced empty AST.");
 			}
+			emit ParsingMessage(expression, "Parsing OK", MessageType::Info);
+			emit ParsingFinished(expression);
 
 			EvaluateExpressionInternalWrapper(ast, method, expression);
 		}
 		catch (const std::runtime_error& error)
 		{
-			emit ParsingFinished(QString::fromStdString(error.what()), MessageType::Error);
+			emit ParsingMessage(expression, QString::fromStdString(error.what()), MessageType::Error);
+			emit ParsingFinished(expression);
 		}
 	}
 
 	void ExpressionEvaluationController::EvaluateExpressionInternalWrapper(std::shared_ptr<DiceCalculator::Expressions::DiceAst> ast, EvaluationMethod method, const QString& originalExpression)
 	{
 		emit EvaluationStarted(originalExpression);
-		emit ParsingFinished("Parsing OK", MessageType::Info);
-		
+
 		if (method == EvaluationMethod::Auto)
 		{
 			int methodMax = static_cast<int>(EvaluationMethod::Roll);
@@ -66,12 +70,13 @@ namespace DiceCalculator::Controllers
 				try
 				{
 					EvaluateExpressionInternal(ast, currentMethod, originalExpression);
-					emit EvaluationFinished("Evaluation OK", MessageType::Info);
+					emit EvaluationMessage(originalExpression, "Evaluation OK", MessageType::Info);
 					return;
 				}
 				catch (const std::runtime_error& error)
 				{
 					emit EvaluationMessage(
+						originalExpression,
 						QString("Evaluation with method %1 failed: %2")
 						.arg(static_cast<int>(currentMethod))
 						.arg(QString::fromStdString(error.what())),
@@ -80,34 +85,37 @@ namespace DiceCalculator::Controllers
 					continue;
 				}
 			}
-			emit EvaluationFinished("All evaluation methods failed.", MessageType::Error);
+			emit EvaluationMessage(originalExpression, "All evaluation methods failed.", MessageType::Error);
 		}
 		else if (method == EvaluationMethod::Convolution)
 		{
 			try
 			{
 				EvaluateExpressionInternal(ast, method, originalExpression);
-				emit EvaluationFinished("Evaluation OK", MessageType::Info);
+				emit EvaluationMessage(originalExpression, "Evaluation OK", MessageType::Info);
+
 			}
 			catch (const std::runtime_error& error)
 			{
-				emit EvaluationFinished(
+				emit EvaluationMessage(
+					originalExpression,
 					QString("Evaluation with Convolution method failed: %1")
 					.arg(QString::fromStdString(error.what())),
 					MessageType::Error
 				);
 			}
+
 		}
 		else if (method == EvaluationMethod::Combinatorial)
 		{
 			try
 			{
 				EvaluateExpressionInternal(ast, method, originalExpression);
-				emit EvaluationFinished("Evaluation OK", MessageType::Info);
 			}
 			catch (const std::runtime_error& error)
 			{
-				emit EvaluationFinished(
+				emit EvaluationMessage(
+					originalExpression,
 					QString("Evaluation with Combinatorial method failed: %1")
 					.arg(QString::fromStdString(error.what())),
 					MessageType::Error
@@ -120,17 +128,24 @@ namespace DiceCalculator::Controllers
 			try
 			{
 				EvaluateExpressionInternal(ast, method, originalExpression);
-				emit EvaluationFinished("Evaluation OK", MessageType::Info);
+				emit EvaluationMessage(originalExpression, "Evaluation OK", MessageType::Info);
 			}
 			catch (const std::runtime_error& error)
 			{
-				emit EvaluationFinished(
+				emit EvaluationMessage(
+					originalExpression,
 					QString("Evaluation with Roll method failed: %1")
 					.arg(QString::fromStdString(error.what())),
 					MessageType::Error
 				);
 			}
 		}
+		else
+		{
+			throw std::runtime_error("Unknown evaluation method.");
+		}
+
+		emit EvaluationFinished(originalExpression);
 	}
 
 	void ExpressionEvaluationController::EvaluateExpressionInternal(std::shared_ptr<DiceCalculator::Expressions::DiceAst> ast, EvaluationMethod method, const QString& originalExpression)
@@ -141,15 +156,13 @@ namespace DiceCalculator::Controllers
 			Evaluation::ConvolutionAstVisitor visitor;
 			ast->Accept(visitor);
 			dist = visitor.GetDistribution();
-			emit PlotDataReady(originalExpression, dist);
 		}
 		else if (method == EvaluationMethod::Combinatorial)
 		{
 			Evaluation::CombinationAstVisitor visitor;
 			ast->Accept(visitor);
 			auto combinations = visitor.GetCombinations();
-			auto dist = Distribution::FromCombinations(combinations);
-			emit PlotDataReady(originalExpression, dist);
+			dist = Distribution::FromCombinations(combinations);
 		}
 		else if(method == EvaluationMethod::Roll)
 		{
@@ -161,6 +174,10 @@ namespace DiceCalculator::Controllers
 				dist.AddOutcome(result, 1.0);
 			}
 			dist.Normalize();
+		}
+		else
+		{
+			throw std::runtime_error("Unknown evaluation method.");
 		}
 
 		emit PlotDataReady(originalExpression, dist);

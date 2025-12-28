@@ -106,6 +106,16 @@ namespace DiceCalculator
 		size_t Size() const noexcept { return m_Data.size(); }
 		void Reserve(size_t n) { m_Data.reserve(n); }
 
+		std::pair<int, int> GetMinMax() const noexcept
+		{
+			if (m_Data.empty())
+			{
+				return {0, 0};
+			}
+
+			return std::make_pair(m_Data.front().first, m_Data.back().first);
+		}
+
 		// Create a normalized distribution from a list of combinations,
 		// assuming each combination is equally likely.
 		static Distribution FromCombinations(const std::vector<Combination>& combinations)

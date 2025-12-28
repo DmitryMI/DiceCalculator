@@ -34,15 +34,19 @@ namespace DiceCalculator::Controllers
 		void EvaluateExpression(const QString& expression, EvaluationMethod method);
 
 	signals:
+		void ParsingStarted(const QString& expression);
+		void ParsingMessage(const QString& expression, const QString& message, MessageType messageType);
+		void ParsingFinished(const QString& expression);
+
 		void EvaluationStarted(const QString& expression);
-		void ParsingFinished(const QString& message, MessageType messageType);
-		void EvaluationMessage(const QString& message, MessageType messageType);
-		void EvaluationFinished(const QString& message, MessageType messageType);
+		void EvaluationMessage(const QString& expression, const QString& message, MessageType messageType);
+		void EvaluationFinished(const QString& expression);
+
 		void PlotDataReady(const QString& expression, const Distribution& distribution);
 		void BusyStateChanged(bool isBusy);
 
 	private:
-		constexpr static int MaxRollsForRollMethod = 1000;
+		constexpr static int MaxRollsForRollMethod = 10000;
 
 		bool m_Busy = false;
 		StdRandom m_Random;

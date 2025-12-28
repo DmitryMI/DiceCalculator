@@ -10,6 +10,7 @@ namespace DiceCalculator::Ui::Widgets
 		: QWidget(parent)
 	{
 		m_Ui.setupUi(this);
+		m_Ui.expressionEdit->setMaximumHeight(80);
 
 		m_Ui.evaluationMethodBox->addItem("Auto", static_cast<int>(Controllers::ExpressionEvaluationController::EvaluationMethod::Auto));
 		m_Ui.evaluationMethodBox->addItem("Convolution", static_cast<int>(Controllers::ExpressionEvaluationController::EvaluationMethod::Convolution));
@@ -19,6 +20,7 @@ namespace DiceCalculator::Ui::Widgets
 
 		connect(m_Ui.expressionEdit, &QTextEdit::textChanged, this, [this](){emit ExpressionChanged(m_Ui.expressionEdit->toPlainText());});
 		connect(m_Ui.evaluateButton, &QPushButton::clicked, this, [this]() {emit ExpressionEvaluationRequested(m_Ui.expressionEdit->toPlainText(), GetExpressionEvaluationMethod()); });
+
 	}
 
 	DiceExpressionInput::~DiceExpressionInput() = default;

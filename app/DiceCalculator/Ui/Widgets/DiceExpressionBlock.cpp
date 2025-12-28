@@ -43,20 +43,29 @@ namespace DiceCalculator::Ui::Widgets
 			m_Controller->TryParseExpression(expression);
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationStarted, this, [this](const QString& expression) {
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParsingStarted, this, [this](const QString& expression) {
 			m_DiceExpressionInput->ClearMessages();
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParsingFinished, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParsingMessage, this, [this](const QString& expression, const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
 			m_DiceExpressionInput->AppendMessage(errorMessage, messageType);
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationMessage, this, [this](const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
+		/*
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::ParsingFinished, this, [this](const QString& expression) {
+			m_Controller->EvaluateExpression(expression, m_DiceExpressionInput->GetEvaluationMethod());
+			});
+		*/
+
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationStarted, this, [this](const QString& expression) {
+			m_DiceExpressionInput->ClearMessages();
+			});	
+
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationMessage, this, [this](const QString& expression, const QString& errorMessage, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
 			m_DiceExpressionInput->AppendMessage(errorMessage, messageType);
 			});
 
-		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationFinished, this, [this](const QString& message, DiceCalculator::Controllers::ExpressionEvaluationController::MessageType messageType) {
-			m_DiceExpressionInput->AppendMessage(message, messageType);
+		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::EvaluationFinished, this, [this](const QString& expression) {
 			});
 
 		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::BusyStateChanged, this, [this](bool isBusy) {
@@ -66,6 +75,11 @@ namespace DiceCalculator::Ui::Widgets
 		connect(m_Controller, &DiceCalculator::Controllers::ExpressionEvaluationController::PlotDataReady, this,
 			[this](const QString& expression, const Distribution& distribution) {ClearOutput(); AddPlot(expression, distribution); });
 		
+		m_DiceExpressionInput->SetExpression("1d20 + 5 + 1d8");
+		m_Controller->EvaluateExpression(
+			m_DiceExpressionInput->GetExpression(),
+			m_DiceExpressionInput->GetEvaluationMethod()
+		);
 	}
 
 	DiceExpressionBlock::~DiceExpressionBlock()
@@ -94,11 +108,6 @@ namespace DiceCalculator::Ui::Widgets
 
 	void DiceExpressionBlock::AddPlot(const QString& expression, const Distribution& distribution)
 	{
-		auto graph = new DistributionGraph(this);
-		graph->SetDistribution(distribution);
-		graph->SetExpression(expression);
-		graph->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
 		QHBoxLayout* scrollLayout = dynamic_cast<QHBoxLayout*>(m_Ui.scrollAreaWidget->layout());
 		if (!scrollLayout)
 		{
@@ -106,7 +115,19 @@ namespace DiceCalculator::Ui::Widgets
 			m_Ui.scrollAreaWidget->setLayout(scrollLayout);
 		}
 
+		scrollLayout->removeItem(m_ScrollAreaSpacerItem);
+		// delete m_ScrollAreaSpacerItem;
+		m_ScrollAreaSpacerItem = new QSpacerItem(20, 40, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+
+		auto graph = new DistributionGraph(this);
+		graph->SetDistribution(distribution);
+		graph->SetExpression(expression);
+		graph->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
 		scrollLayout->addWidget(graph);
+		scrollLayout->addItem(m_ScrollAreaSpacerItem);
+
 		graph->Plot();
 	}
 }

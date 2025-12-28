@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "DiceCalculator/Parsing/BoostSpiritParser.h"
+#include "DiceCalculator/Operators/Registry.h"
 #include "DiceCalculator/TestUtilities.h"
 
 #include <string>
@@ -9,13 +10,15 @@ namespace DiceCalculator::Parsing
 {
 	class BoostSpiritParserTest : public DiceCalculator::TestUtilities::TestHelpers
 	{
+	public:
+		std::shared_ptr<Operators::Registry> Registry = std::make_shared<Operators::Registry>();
 	};
 
 	TEST_F(BoostSpiritParserTest, ParseSimpleDice)
 	{
-		// ASSERT_TRUE(DiceCalculator::Operators::Advantage::registered);
+		
 
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "1d6";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -29,7 +32,7 @@ namespace DiceCalculator::Parsing
 	{
 		// ASSERT_TRUE(DiceCalculator::Operators::Advantage::registered);
 
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "1d8 + 1d20 > 10";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -40,7 +43,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseExpressionOuterAdvantage)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "ADV(1d6)";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -51,7 +54,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseExpressionAttackRoll)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "AttackRoll(1d20, 13)";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -62,7 +65,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseExpressionWithConstantAndAdvantage)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "ADV(2d10+4)-1d6";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -77,7 +80,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseExpressionWithConstantAndAdvantageReordered)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "1d6+ADV(2d10+4)";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -92,7 +95,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseExpressionWithTwoAdditions)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "2d10+4+1d6";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -106,7 +109,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseComplexNestedComparison)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "(1d8 + (2d4 - 3)) >= 5";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -121,7 +124,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseAndReconstructComplexNestedComparison)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "(1d8 + (2d4 - 3)) >= 5";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
@@ -134,7 +137,7 @@ namespace DiceCalculator::Parsing
 
 	TEST_F(BoostSpiritParserTest, ParseAndReconstructExpressionWithFunctions)
 	{
-		BoostSpiritParser parser;
+		BoostSpiritParser parser(Registry);
 		const std::string input = "(1d8 + (ADV(2d4) - AttackRoll(1d20, 13))) >= DIS(2d6)";
 		auto ast = parser.Parse(input);
 		ASSERT_NE(ast, nullptr) << "Parser returned null for input: " << input;
